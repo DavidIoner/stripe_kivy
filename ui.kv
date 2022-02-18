@@ -1,0 +1,47 @@
+# Importa a transição a ser utilizada
+#: import SlideTransition kivy.uix.screenmanager.SlideTransition
+
+# Referencia as telas com as classes
+MyScreenManager:
+	transition: SlideTransition(direction="right")
+	id: screen_manager
+
+	CustomerScreen:
+		id: customer_screen
+		name: 'customer_screen'
+		manager: screen_manager
+	WorkerScreen:
+		id: worker_screen
+		name: 'worker_screen'
+		manager: screen_manager
+
+
+<CustomerScreen>:
+	FloatLayout:
+	    MDRaisedButton:
+			id: drop
+			text: "PRESS ME"
+			pos_hint: {"center_x": .5, "center_y": .5}
+			on_release: app.menu.open()
+
+		MDRaisedButton:
+			on_press:root.to_worker()
+			text:"To Worker"
+			color:0,1.,0,1
+			size_hint:.33, .2
+			background_color:(0,0,1,1.)
+			pos_hint:{"x":.5,"y":.25}
+
+			
+<WorkerScreen>:
+
+	FloatLayout:
+		MDRaisedButton:
+			on_press:root.to_customer()
+			text:"To Customer"
+			color:0,1.,0,1
+			size_hint:.33, .2
+			background_color:(0,0,1,1.)
+			pos_hint:{"center_x":.5,"y":.25}
+
+			
