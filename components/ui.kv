@@ -1,0 +1,65 @@
+<App@MDFloatLayout>
+
+    MDTextField:
+        id: licensee
+        hint_text: "Licensee principal name"
+        pos_hint: {"x": 0.05, "y": 0.9}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+    
+    MDTextField:
+        id: company
+        hint_text: "Company name"
+        pos_hint: {"x": 0.05, "y": 0.8}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDTextField:
+        id: located_at
+        hint_text: "Located at"
+        pos_hint: {"x": 0.05, "y": 0.7}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDTextField:
+        id: phone
+        hint_text: "Phone number"
+        pos_hint: {"x": 0.05, "y": 0.6}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDTextField:
+        id: licensor
+        hint_text: "Licensor name"
+        pos_hint: {"x": 0.05, "y": 0.5}
+        text: "Nigel Shamash"
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDTextField:
+        id: email
+        hint_text: "E-mail"
+        pos_hint: {"x": 0.05, "y": 0.4}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDDropDownItem:
+        id: drop_local
+        pos_hint: {"x": 0.05, "y": 0.2}
+        text: 'select the location'
+        size_hint: 0.4, 0.1
+        on_release: app.menu.open()
+
+App

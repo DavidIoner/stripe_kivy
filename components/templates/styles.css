@@ -1,0 +1,93 @@
+table, tr, td {
+  border-collapse: collapse;
+  border: 1px solid black;
+  text-align: center; 
+  width: 80px;
+}
+
+
+
+.logo-container {
+  height: 124px;
+  width: 134px;
+}
+
+.root-container {
+  margin-top: -1cm;
+  margin-left: -1cm;
+  margin-right: -1cm;
+  margin-bottom: -0.5cm;
+  font-family: 'arial';
+  font-size: 15px;
+  page-break-after: always;
+}
+
+.container {
+    display: inline-block;
+    width: 90px;
+}
+
+.header-container {
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    display: inline-block;
+    vertical-align: top;
+
+}
+
+.clause-container {
+  float: top;
+  min-height: 170px;
+}
+
+.left-top-container {
+  width: 45%;
+  float: left;
+}
+
+.middle-top-container {
+  width: 16.5%;
+  float: left;
+  text-align: left; 
+  display: inline;
+}
+
+.care-container {
+  text-align: right;
+  float: top;
+  margin-top: -15px;
+}
+
+
+.right-top-container {
+  width: 38%;
+  float: right;
+  float: top;
+  text-align: left;
+  min-height: 247px;
+  display: inline;
+}
+
+.left-container {
+  width: 48%;
+  left: 0px;
+  float: left;
+  height: 100%;
+}
+
+.right-container {
+  width: 48%;
+  float: right;
+  right: 0px;
+}
+
+.sign-container {
+  margin-left: 0.5cm;
+  margin-right: 0.5cm;
+  position: absolute;
+  bottom: -1cm;
+}
+
+.payment-container {
+  margin-left: 0.5cm;
+}
