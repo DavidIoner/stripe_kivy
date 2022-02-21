@@ -57,13 +57,38 @@ class App(MDApp):
             for i in range(0, dbutil.get_qtd())
         ]
         # sort list alphabetically, the last customer create a bug, so the dropdown dont show it
-        print(dbutil.get_qtd())
-        print(menu_items_customer)
+
         menu_items_customer_sorted = sorted(menu_items_customer, key=itemgetter("text"))
 
         self.customer_menu = MDDropdownMenu(
             caller=self.kv.ids.drop_customer,
             items=menu_items_customer_sorted,
+            position="center",
+            width_mult=4,
+        )
+        menu_items_payment_method = [
+            {
+                "viewclass": "OneLineIconListItem",
+                "text": "Card",
+                "height": dp(56),
+                "on_release": lambda x=f"Card": self.set_payment_method(x),
+            },
+            {
+                "viewclass": "OneLineIconListItem",
+                "text": "Boleto",
+                "height": dp(56),
+                "on_release": lambda x=f"Boleto": self.set_payment_method(x),
+            },
+            {
+                "viewclass": "OneLineIconListItem",
+                "text": "method 3 (not available)",
+                "height": dp(56),
+                "on_release": lambda x=f"#3": self.set_payment_method(x),
+            },
+        ]
+        self.payment_method_menu = MDDropdownMenu(
+            caller=self.kv.ids.drop_payment_method,
+            items=menu_items_payment_method,
             position="center",
             width_mult=4,
         )
@@ -104,6 +129,12 @@ class App(MDApp):
         else:
             self.root.ids.email.text = ""
 
+    def set_payment_method(self, text_item):
+        self.kv.ids.drop_payment_method.set_item(text_item)
+        self.payment_method_menu.dismiss()
+        print(text_item)
+        self.payment_method = text_item
+
     def submit(self):
         # add to database
         item_dict = {
@@ -117,6 +148,9 @@ class App(MDApp):
         except:
             print("customer already exists, try update!")
         # add to dropdowns
+
+    def submit_payment_method(self):
+        pass
 
     def update(self):
         pass

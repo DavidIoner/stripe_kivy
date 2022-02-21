@@ -69,12 +69,27 @@
         size_hint: 0.4, 0.1
         on_release: app.customer_menu.open()
 
+    MDDropDownItem:
+        id: drop_payment_method
+        pos_hint: {"x": 0.55, "y": 0.7}
+        text: 'select the payment method'
+        size_hint: 0.4, 0.1
+        on_release: app.payment_method_menu.open()
+
     MDRaisedButton:
         id: btn
-        text: "Submit"
-        pos_hint: {"x": 0.55, "y": 0.2}
+        text: "Submit customer"
+        pos_hint: {"x": 0.05, "y": 0.2}
         size_hint: 0.2, 0.1
         on_release: 
             app.submit()
+
+    MDRaisedButton:
+        id: btn_payment
+        text: "Submit payment method"
+        pos_hint: {"x": 0.55, "y": 0.2}
+        size_hint: 0.2, 0.1
+        on_release: 
+            app.submit_payment_method()
 
 App

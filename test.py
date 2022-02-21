@@ -1,39 +1,14 @@
-from operator import itemgetter
-from tkinter import Y
+import components.payment as payment
 
-import components.DButilC as dbutil
+# cus = payment.create_customer("jubileu das neves", "juj@gmail.com")
 
-item_dict = {
-    "name": "joja",
-    "phone": "55555555",
-    "email": "mail@mail",
-    "company": "",
-}
+# create a card token for the customer
 
-# insert item dict into database
-# dbutil.insert_data(item_dict)
 
-# dbutil.update_item()
-menu = [
-    {
-        "name": dbutil.get_item("name", i, "id"),
-    }
-    for i in range(0, dbutil.get_qtd())
-]
-# sorted_list = sorted(menu, key=itemgetter("name"))
-# print(menu)
-# print(sorted_list)
-n = dbutil.get_item("name", 1, "id")
+cusr = payment.retrieve_customer("cus_LC7hgjJFJKwjMN")
 
-print(n)
+desk = payment.create_desk_price(cusr.name, 20000, "usd")
 
-# dbutil.set_ids()
-# x = dbutil.get_row(0)
-# print(x)
+subs = payment.create_subscription(cusr.id, desk.id, "usd")
 
-customer_row = dbutil.get_row(1, "id")
-print(customer_row)
-try:
-    print(customer_row[1])
-except:
-    print("error")
+print(subs)

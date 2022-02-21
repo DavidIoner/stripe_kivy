@@ -7,6 +7,7 @@ from kivymd.uix.menu import MDDropdownMenu
 
 # import components.to_pdf_class as pdf
 import components.DButilC as dbutil
+import components.payment as payment
 
 
 class App(MDApp):
@@ -38,7 +39,6 @@ class App(MDApp):
     def set_customer(self, text_item):
         self.kv.ids.drop_customer.set_item(text_item)
         self.customer_menu.dismiss()
-        print(text_item)
         self.customer = text_item
         self.customer_id = dbutil.get_item("id", text_item, "name")
         self.customer_row = dbutil.get_row(self.customer_id)
@@ -47,16 +47,21 @@ class App(MDApp):
     def submit(self):
         # add to database
         item_dict = {
-            "name": self.worker,
-            "company": self.root.ids.company.text,
-            "phone": self.root.ids.phone.text,
-            "email": self.root.ids.email.text,
+            "customer": self.customer,
+            "name": self.root.ids.worker.text,
+            "wage": self.root.ids.wage.text,
         }
         try:
             dbutil.insert_data(item_dict)
         except:
-            print("customer already exists, try update!")
+            print("worker already exists, try update!")
         # add to dropdowns
+    
+    def submit_desk(self):
+        pass
+
+    def submit_wage(self):
+        pass
 
     def update(self):
         pass
