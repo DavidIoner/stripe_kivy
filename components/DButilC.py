@@ -14,10 +14,10 @@ cursor = db.cursor()
 # name = cursor.execute("SELECT name FROM customers WHERE id=1")
 
 
-def insert_data(item_dict):
+def insert_data(item_dict, table="customers"):
     try:
         cursor.execute(
-            f"INSERT INTO customers (name, phone, email) VALUES ('{item_dict['name']}', '{item_dict['phone']}', '{item_dict['email']}')"
+            f"INSERT INTO {table} (name, phone, email) VALUES ('{item_dict['name']}', '{item_dict['phone']}', '{item_dict['email']}')"
         )
         db.commit()
         print(f"{item_dict['name']} added to database")
@@ -25,9 +25,9 @@ def insert_data(item_dict):
         print("Error: could not insert data")
 
 
-def get_item(item, where_id, where="name"):
+def get_item(item, where_id, where="name", table="customers"):
     try:
-        cursor.execute(f"SELECT {item} FROM customers WHERE {where}='{where_id}'")
+        cursor.execute(f"SELECT {item} FROM {table} WHERE {where}='{where_id}'")
         fetch = cursor.fetchone()
         db.commit()
         return fetch[0]
@@ -36,9 +36,9 @@ def get_item(item, where_id, where="name"):
 
 
 # get the full row by name
-def get_row(where_id, where="id"):
+def get_row(where_id, where="id", table="customers"):
     try:
-        data = cursor.execute(f"SELECT * FROM customers WHERE {where}={where_id}")
+        data = cursor.execute(f"SELECT * FROM {table} WHERE {where}={where_id}")
         fetch = data.fetchone()
         db.commit()
         return fetch
@@ -46,10 +46,10 @@ def get_row(where_id, where="id"):
         print("Error: could not get item")
 
 
-def update_item(item, item_value, where_id, where="name", view=True):
+def update_item(item, item_value, where_id, where="name", view=True, table="customers"):
     try:
         cursor.execute(
-            f"UPDATE customers SET {item}='{item_value}' WHERE {where}='{where_id}'"
+            f"UPDATE {table} SET {item}='{item_value}' WHERE {where}='{where_id}'"
         )
         db.commit()
         if view:
@@ -58,10 +58,10 @@ def update_item(item, item_value, where_id, where="name", view=True):
         print("Error: could not update item")
 
 
-def update_item_dict(item_dict, where_id, where="name"):
+def update_item_dict(item_dict, where_id, where="name", table="customers"):
     try:
         cursor.execute(
-            f"UPDATE customers SET name='{item_dict['name']}', phone='{item_dict['phone']}', email='{item_dict['email']}' WHERE {where}='{where_id}'"
+            f"UPDATE {table} SET name='{item_dict['name']}', phone='{item_dict['phone']}', email='{item_dict['email']}' WHERE {where}='{where_id}'"
         )
         db.commit()
         print(f"{item_dict['name']} from {where_id} updated to {item_dict['name']}")
@@ -69,17 +69,17 @@ def update_item_dict(item_dict, where_id, where="name"):
         print("Error: could not update item")
 
 
-def get_qtd():
-    qtd = cursor.execute("SELECT COUNT(*) FROM customers")
+def get_qtd(table="customers"):
+    qtd = cursor.execute(f"SELECT COUNT(*) FROM {table}")
     db.commit()
     count = list(qtd.fetchone())[0]
     return int(count)
 
 
 # verify if row exists on database by the "name" column
-def verify_row(name):
+def verify_row(name, table="customers"):
     try:
-        data = cursor.execute(f"SELECT name FROM customers WHERE name='{name}'")
+        data = cursor.execute(f"SELECT name FROM {table} WHERE name='{name}'")
         return True
     except:
         print(f"{name}, creating new one")
@@ -92,6 +92,6 @@ def close_db():
 
 
 # set all existing ids in order starting from 0
-def set_ids():
-    cursor.execute("UPDATE customers SET id=rowid-1")
+def set_ids(table="customers"):
+    cursor.execute(f"UPDATE {table} SET id=rowid-1")
     db.commit()

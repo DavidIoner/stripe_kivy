@@ -1,0 +1,29 @@
+<App@MDFloatLayout>
+
+    MDTextField:
+        id: worker
+        hint_text: "Worker name"
+        pos_hint: {"x": 0.05, "y": 0.9}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDTextField:
+        id: wage
+        hint_text: "wage"
+        pos_hint: {"x": 0.05, "y": 0.8}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+
+    MDDropDownItem:
+        id: drop_customer
+        pos_hint: {"x": 0.55, "y": 0.8}
+        text: 'select the customer'
+        size_hint: 0.4, 0.1
+        on_release: app.customer_menu.open()
+
+App
