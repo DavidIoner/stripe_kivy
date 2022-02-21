@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+
+<div class="root-container">
+    <p>
+        Exibith A <br>
+        Worker Name: {{worker}} 
+        <br> <br> <br>
+        <strong>SERVICE RELATED PAYMENTS</strong>
+        Figures can be in USD or MXN (Mexican Pesos), as specified. Credit card processing fees are additional. Set up a recurring payment with Wise to save up to 4%. <br>
+    </p>
+    <div class="payment-container">
+        <p>
+            1. <strong>Onboarding Fee/Deposit.</strong>  A refundable Deposit of ${{onboard_cash}} {{onboard_coin}}, Payable at the signing of the contract in order to hire staff. Charged by {{onboard_affiliate}}. <br> <br>
+            2. <strong> Security</strong> Deposit of ${{security_cash}} {{security_coin}} (One month of salary), and Payable at the signing of the contract. Charged by {{security_affiliate}}. <br> <br>
+            3. <strong>Bi-weekly Wage Payment of</strong> ${{biwage}} MXN (${{biwage_USD}} USD at time of writing, subject to change), Payable at 1st and 15th of every month, charged by 5CRE’s LATAM affiliate. <br> <br>
+            4. <strong> Bi-weekly Rental Fee</strong> of ${{desk_fee_USD}} USD per desk charged by 5CRE <br> <br>
+        </p>
+        <table>
+            <tr>
+                <th colspan="8">PAYMENT SCHEDULE</th>
+            </tr>
+            <tr>
+                <th colspan="2">Due Period</th>
+                <th>Wage in MXN</th>
+                <th>Fee in USD</th>
+                <th colspan="2">Due Period</th>
+                <th>Wage in MXN</th>
+                <th>Fee in USD</th>
+            </tr>
+            <tr>
+                <td rowspan="2">1st month</td>
+                <td>1st</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+                <td rowspan="2">7th month</td>
+                <td>1st</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+            </tr>
+            <tr>
+                <td>15th</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+                <td>15th</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+            </tr>
+            <tr>
+                <td rowspan="2">2nd month</td>
+                <td>1st</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+                <td rowspan="2">8th month</td>
+                <td>1st</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+            </tr>
+            <tr>
+                <td>15th</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+                <td>15th</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+            </tr>
+            <tr>
+                <td rowspan="2">3rd month</td>
+                <td>1st</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+                <td rowspan="2">9th month</td>
+                <td>1st</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+            </tr>
+            <tr>
+                <td>15th</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+                <td>15th</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+            </tr>
+            <tr>
+                <td rowspan="2">4th month</td>
+                <td>1st</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+                <td rowspan="2">10th month</td>
+                <td>1st</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+            </tr>
+            <tr>
+                <td>15th</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+                <td>15th</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+            </tr>
+            <tr>
+                <td rowspan="2">5th month</td>
+                <td>1st</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+                <td rowspan="2">11th month</td>
+                <td>1st</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+            </tr>
+            <tr>
+                <td>15th</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+                <td>15th</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+            </tr>
+            <tr>
+                <td rowspan="2">6st month</td>
+                <td>1st</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+                <td rowspan="2">12st month</td>
+                <td>1st</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+            </tr>
+            <tr>
+                <td>15th</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+                <td>15th</td>
+                <td>{{biwage}}</td>
+                <td>{{desk_fee_USD}}</td>
+            </tr>
+        </table>
+
+        <p>
+            5. <strong>Other payments.</strong> <br> <br>
+            <strong>Christmas bonus:</strong> ${{christmas_MXN}} MXN (${{christmas_USD}} USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br>
+            {{apartment_p}}
+            {{holiday_p}}
+        </p>
+    </div>
+</div>
+
+
+</body>
+</html>
