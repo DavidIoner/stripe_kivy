@@ -135,6 +135,8 @@ class App(MDApp):
         print(text_item)
         self.payment_method = text_item
 
+
+
     def submit(self):
         # add to database
         item_dict = {
