@@ -15,6 +15,7 @@ class App(MDApp):
         self.kv = Builder.load_file("components/ui.kv")
 
         # to avoid bugs
+        self.currency_check = False
 
         menu_items_local = [
             {
@@ -66,32 +67,6 @@ class App(MDApp):
             position="center",
             width_mult=4,
         )
-        menu_items_payment_method = [
-            {
-                "viewclass": "OneLineIconListItem",
-                "text": "Card",
-                "height": dp(56),
-                "on_release": lambda x=f"Card": self.set_payment_method(x),
-            },
-            {
-                "viewclass": "OneLineIconListItem",
-                "text": "Boleto",
-                "height": dp(56),
-                "on_release": lambda x=f"Boleto": self.set_payment_method(x),
-            },
-            {
-                "viewclass": "OneLineIconListItem",
-                "text": "method 3 (not available)",
-                "height": dp(56),
-                "on_release": lambda x=f"#3": self.set_payment_method(x),
-            },
-        ]
-        self.payment_method_menu = MDDropdownMenu(
-            caller=self.kv.ids.drop_payment_method,
-            items=menu_items_payment_method,
-            position="center",
-            width_mult=4,
-        )
 
     def set_local(self, text_item):
         self.kv.ids.drop_local.set_item(text_item)
@@ -129,24 +104,39 @@ class App(MDApp):
         else:
             self.root.ids.email.text = ""
 
-    def set_payment_method(self, text_item):
-        self.kv.ids.drop_payment_method.set_item(text_item)
-        self.payment_method_menu.dismiss()
-        print(text_item)
-        self.payment_method = text_item
-
-
+    def check_currency(self, checkbox, active):
+        if active:
+            self.currency_check = True
+            self.root.ids.onboard.hint_text = "Onboard (MXN)"
+            self.root.ids.security.hint_text = "Security deposit (MXN)"
+            self.root.ids.apartment.hint_text = "Apartment (MXN)"
+        if not active:
+            self.currency_check = False
+            self.root.ids.onboard.hint_text = "Onboard (USD)"
+            self.root.ids.security.hint_text = "Security deposit (USD)"
+            self.root.ids.apartment.hint_text = "Apartment (USD)"
 
     def submit(self):
+        if self.currency_check:
+            self.currency = "MXN"
+        else:
+            self.currency = "USD"
+
         # add to database
         item_dict = {
             "name": self.customer,
+            "currency": self.currency,
             "company": self.root.ids.company.text,
             "phone": self.root.ids.phone.text,
             "email": self.root.ids.email.text,
+            "licensor": self.root.ids.licensor.text,
+            "local": self.specific_location,
+            "onboard": self.root.ids.onboard.text,
+            "security": self.root.ids.security.text,
+            "apartment": self.root.ids.apartment.text,
         }
         try:
-            dbutil.insert_data(item_dict)
+            dbutil.insert_data_customer(item_dict)
         except:
             print("customer already exists, try update!")
         # add to dropdowns

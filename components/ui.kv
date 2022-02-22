@@ -1,9 +1,9 @@
 <App@MDFloatLayout>
 
     MDTextField:
-        id: licensee
-        hint_text: "Licensee principal name"
-        pos_hint: {"x": 0.05, "y": 0.9}
+        id: customer
+        hint_text: "customer name"
+        pos_hint: {"x": 0.05, "y": 0.8}
         size_hint_x: 0.4
         write_tab: False
         multiline: False
@@ -12,7 +12,7 @@
     MDTextField:
         id: company
         hint_text: "Company name"
-        pos_hint: {"x": 0.05, "y": 0.8}
+        pos_hint: {"x": 0.05, "y": 0.7}
         size_hint_x: 0.4
         write_tab: False
         multiline: False
@@ -21,7 +21,7 @@
     MDTextField:
         id: located_at
         hint_text: "Located at"
-        pos_hint: {"x": 0.05, "y": 0.7}
+        pos_hint: {"x": 0.05, "y": 0.6}
         size_hint_x: 0.4
         write_tab: False
         multiline: False
@@ -30,17 +30,7 @@
     MDTextField:
         id: phone
         hint_text: "Phone number"
-        pos_hint: {"x": 0.05, "y": 0.6}
-        size_hint_x: 0.4
-        write_tab: False
-        multiline: False
-        on_text_validate: app.handle_key()
-
-    MDTextField:
-        id: licensor
-        hint_text: "Licensor name"
         pos_hint: {"x": 0.05, "y": 0.5}
-        text: "Nigel Shamash"
         size_hint_x: 0.4
         write_tab: False
         multiline: False
@@ -55,31 +45,104 @@
         multiline: False
         on_text_validate: app.handle_key()
 
+    MDTextField:
+        id: licensor
+        hint_text: "Licensor name"
+        pos_hint: {"x": 0.05, "y": 0.3}
+        text: "Nigel Shamash"
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDTextField:
+        id: onboard
+        hint_text: "Onboard (USD)"
+        pos_hint: {"x": 0.55, "y": 0.8}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDTextField:
+        id: security
+        hint_text: "Security (USD)"
+        pos_hint: {"x": 0.55, "y": 0.7}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDTextField:
+        id: apartment
+        hint_text: "Apartment (USD)"
+        pos_hint: {"x": 0.55, "y": 0.7}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDTextField:
+        id: card_number
+        hint_text: "Card number"
+        pos_hint: {"x": 0.55, "y": 0.4}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+    
+    MDTextField:
+        id: exp_month
+        hint_text: "Expiration month"
+        pos_hint: {"x": 0.55, "y": 0.3}
+        size_hint_x: 0.2
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+   
+    MDTextField:
+        id: exp_year
+        hint_text: "Expiration year"
+        pos_hint: {"x": 0.8, "y": 0.3}
+        size_hint_x: 0.2
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDTextField:
+        id: cvc
+        hint_text: "cvc"
+        pos_hint: {"x": 0.55, "y": 0.2}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+
     MDDropDownItem:
         id: drop_local
-        pos_hint: {"x": 0.05, "y": 0.2}
+        pos_hint: {"x": 0.05, "y": 0.25}
         text: 'select the location'
         size_hint: 0.4, 0.1
         on_release: app.local_menu.open()
 
     MDDropDownItem:
         id: drop_customer
-        pos_hint: {"x": 0.55, "y": 0.8}
+        pos_hint: {"x": 0.05, "y": 0.9}
         text: 'select the customer'
         size_hint: 0.4, 0.1
         on_release: app.customer_menu.open()
 
-    MDDropDownItem:
-        id: drop_payment_method
-        pos_hint: {"x": 0.55, "y": 0.7}
-        text: 'select the payment method'
-        size_hint: 0.4, 0.1
-        on_release: app.payment_method_menu.open()
+    MDSwitch:
+        id: currency
+        pos_hint: {"x": 0.47, "y": 0.9}
+
+        on_active: app.check_currency(*args)
 
     MDRaisedButton:
         id: btn
         text: "Submit customer"
-        pos_hint: {"x": 0.05, "y": 0.2}
+        pos_hint: {"x": 0.05, "y": 0.1}
         size_hint: 0.2, 0.1
         on_release: 
             app.submit()
@@ -87,7 +150,7 @@
     MDRaisedButton:
         id: btn_payment
         text: "Submit payment method"
-        pos_hint: {"x": 0.55, "y": 0.2}
+        pos_hint: {"x": 0.55, "y": 0.1}
         size_hint: 0.2, 0.1
         on_release: 
             app.submit_payment_method()

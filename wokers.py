@@ -15,6 +15,8 @@ class App(MDApp):
         super().__init__(**kwargs)
         self.kv = Builder.load_file("components/worker_ui.kv")
 
+        # to avoid bugs
+        self.holiday_check = False
         menu_items_customer = [
             {
                 "viewclass": "OneLineIconListItem",
@@ -44,19 +46,33 @@ class App(MDApp):
         self.customer_row = dbutil.get_row(self.customer_id)
         # get toker from row
 
+    def check_holiday(self, checkbox, active):
+        if active:
+            self.holiday_check = True
+
+        if not active:
+            self.holiday_check = False
+
     def submit(self):
+        if self.holiday_check:
+            self.holiday = "1"
+        else:
+            self.holiday = "0"
         # add to database
         item_dict = {
             "customer": self.customer,
+            "holiday": self.holiday,
             "name": self.root.ids.worker.text,
             "wage": self.root.ids.wage.text,
+            "christmas": self.root.ids.christmas.text,
+            "desk": self.root.ids.desk.text,
         }
         try:
             dbutil.insert_data(item_dict)
         except:
             print("worker already exists, try update!")
         # add to dropdowns
-    
+
     def submit_desk(self):
         pass
 

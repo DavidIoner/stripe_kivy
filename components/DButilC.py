@@ -24,6 +24,16 @@ def insert_data(item_dict, table="customers"):
     except sqlite3.OperationalError:
         print("Error: could not insert data")
 
+def insert_data_customer(item_dict):
+    try:
+        cursor.execute(
+            f"INSERT INTO customers (name, company, located_at, phone, email, local, onboard, security, apartment, currency) VALUES ('{item_dict['name']}','{item_dict['company']}','{item_dict['located_at']}', '{item_dict['phone']}', '{item_dict['email']}', '{item_dict['local']}', '{item_dict['onboard']}', '{item_dict['security']}', '{item_dict['apartment']}', '{item_dict['currency']}')"
+        )
+        db.commit()
+        print(f"{item_dict['name']} added to database")
+    except sqlite3.OperationalError:
+        print("Error: could not insert data")
+
 
 def get_item(item, where_id, where="name", table="customers"):
     try:
