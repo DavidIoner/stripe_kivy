@@ -1,5 +1,4 @@
 import sqlite3
-from io import BufferedReader
 
 import pandas as pd
 
