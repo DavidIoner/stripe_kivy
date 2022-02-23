@@ -7,7 +7,7 @@ from kivymd.uix.menu import MDDropdownMenu
 
 # import components.to_pdf_class as pdf
 import components.DButilC as dbutil
-
+import components.payment as payment
 
 class App(MDApp):
     def __init__(self, **kwargs):
@@ -50,21 +50,19 @@ class App(MDApp):
             {
                 "viewclass": "OneLineIconListItem",
                 "text": dbutil.get_item("name", i, "id"),
+                "id": i,
                 "height": dp(56),
-                "on_release": lambda x=dbutil.get_item(
-                    "name", i, "id"
-                ): self.set_customer(x),
-            }
+                "on_release": lambda x=f'{i} {dbutil.get_item("name", i, "id")}': self.set_customer(x)}
+            
             for i in range(0, dbutil.get_qtd())
         ]
         # sort list alphabetically, the last customer create a bug, so the dropdown dont show it
 
-        menu_items_customer_sorted = sorted(menu_items_customer, key=itemgetter("text"))
 
         self.customer_menu = MDDropdownMenu(
             caller=self.kv.ids.drop_customer,
-            items=menu_items_customer_sorted,
-            position="center",
+            items=menu_items_customer,
+            position="bottom",
             width_mult=4,
         )
 
@@ -82,19 +80,20 @@ class App(MDApp):
             self.specific_location = text_item
 
     def set_customer(self, text_item):
+        self.customer_id = int(text_item[0])
         self.kv.ids.drop_customer.set_item(text_item)
         self.customer_menu.dismiss()
-        print(text_item)
-        self.customer = text_item
-        self.root.ids.licensee.text = text_item
-        self.customer_id = dbutil.get_item("id", text_item, "name")
+        print(self.customer_id, text_item)
+
         self.customer_row = dbutil.get_row(self.customer_id)
         print(self.customer_row)
+        
+        # set fields
+        self.root.ids.customer.text = self.customer_row[1]
         if self.customer_row[2] is not None:
             self.root.ids.company.text = self.customer_row[2]
         else:
             self.root.ids.company.text = ""
-
         if self.customer_row[4] is not None:
             self.root.ids.phone.text = self.customer_row[4]
         else:
@@ -140,9 +139,23 @@ class App(MDApp):
         except:
             print("customer already exists, try update!")
         # add to dropdowns
+        self.customer_row = dbutil.get_row(self.customer_id)
+        dbutil.verify_row(self.customer_row[1])
+        ### MAKE TESTS ###
+        if self.customer_row[12] is None:
+            customer = payment.create_customer(self.customer_row[1], self.customer_row[5])
+            dbutil.update_item("customer_id", customer.id, self.customer_id)
 
-    def submit_payment_method(self):
-        pass
+    def submit_payment_method(self):       
+        card = self.root.ids.card_number.text
+        cvc = self.root.ids.cvv.text
+        exp_month = self.root.ids.exp_month.text
+        exp_year = self.root.ids.exp_year.text
+        ### MAKE TESTS ###
+        if self.customer_row[13] is None:
+            card_token = payment.create_card_token(self.customer_row[12], card, exp_month, exp_year, cvc)
+            dbutil.update_item("card_token", card_token, self.customer_id)
+
 
     def update(self):
         pass

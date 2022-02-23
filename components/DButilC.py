@@ -55,7 +55,7 @@ def get_row(where_id, where="id", table="customers"):
         print("Error: could not get item")
 
 
-def update_item(item, item_value, where_id, where="name", view=True, table="customers"):
+def update_item(item, item_value, where_id, where="id", view=True, table="customers"):
     try:
         cursor.execute(
             f"UPDATE {table} SET {item}='{item_value}' WHERE {where}='{where_id}'"

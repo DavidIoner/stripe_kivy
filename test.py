@@ -12,8 +12,11 @@ import components.DButilC as dbutil
 # subs = payment.create_subscription(cusr.id, desk.id, "usd")
 
 # print(subs)
-customer_row = dbutil.get_row("jobson", "name")
+customer_row = dbutil.get_row(2)
 print(customer_row)
 
 company = customer_row[2]
 print(company)
+
+ver = dbutil.verify_row(customer_row[1])
+print(ver)

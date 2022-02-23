@@ -1,6 +1,31 @@
 import stripe
 
 
+# create a card token from a card number
+def create_card_token(
+    customer_id, card_number, exp_month, exp_year, cvc, currency="usd"
+):
+    if currency == "usd":
+        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
+    elif currency == "mxn":
+        stripe.api_key = "mxnkey"
+    token = stripe.Token.create(
+        card={
+            "number": card_number,
+            "exp_month": exp_month,
+            "exp_year": exp_year,
+            "cvc": cvc,
+        },
+    )
+    # attach the token to the customer
+    stripe.PaymentMethod.attach(
+        token.id,
+        customer=customer_id,
+        type="card",
+    )
+    return token
+
+
 # create a customer
 def create_customer(name, email, currency="usd"):
     if currency == "usd":
@@ -10,36 +35,10 @@ def create_customer(name, email, currency="usd"):
     return stripe.Customer.create(
         email=email,
         name=name,
-        invoice_settings={
-            "default_payment_method": None,
-            "default_payment_due_days": 0,
-        },
-    )
-
-
-# create a card payment method
-def create_card_payment_method(
-    customer_id, card_number, exp_month, exp_year, cvc, currency="usd"
-):
-    customer = retrieve_customer(customer_id)
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
-    return stripe.PaymentMethod.create(
-        type="card",
-        card={
-            "number": card_number,
-            "exp_month": exp_month,
-            "exp_year": exp_year,
-            "cvc": cvc,
-        },
-        billing_details={
-            "name": customer.name,
-        },
-        metadata={
-            "customer_id": customer_id,
-        },
+        # invoice_settings={
+        #     "default_payment_method": None,
+        #     "default_payment_due_days": 0,
+        # },
     )
 
 
@@ -49,21 +48,11 @@ def create_product(worker_name, currency="usd"):
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
         stripe.api_key = "mxnkey"
-    return stripe.Product.create(
-        name=worker_name,
+    product = stripe.Product.create(
+        name=f"{worker_name}_service",
         type="service",
     )
-
-
-def create_desk_product(worker_name, currency="usd"):
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
-    return stripe.Product.create(
-        name=f"{worker_name}_desk",
-        type="service",
-    )
+    return product
 
 
 # create a price with the worker id
@@ -75,7 +64,7 @@ def create_desk_price(worker_name, amount, currency="usd"):
     return stripe.Price.create(
         currency=currency,
         unit_amount=amount,
-        # product=product_id,
+        nickname=f"{worker_name}_desk_price",
         recurring={
             "interval": "day",
             "interval_count": 15,
@@ -87,7 +76,7 @@ def create_desk_price(worker_name, amount, currency="usd"):
     )
 
 
-def create_price(worker_name, amount, currency="usd"):
+def create_worker_price(worker_name, amount, currency="usd"):
     if currency == "usd":
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
@@ -95,32 +84,20 @@ def create_price(worker_name, amount, currency="usd"):
     return stripe.Price.create(
         currency=currency,
         unit_amount=amount,
-        nickname=f"{worker_name}_price",
+        nickname=f"{worker_name}_service_price",
         recurring={
             "interval": "day",
-            "interval_count": 1,
+            "interval_count": 30,
+        },
+        product_data={
+            "name": f"{worker_name}_service",
+            "type": "service",
         },
     )
 
 
-# create a plan with the worker id
-def create_plan(worker_name, amount, currency="usd"):
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
-    return stripe.Plan.create(
-        nickname=worker_name,
-        product=worker_name,
-        amount=amount,
-        currency=currency,
-        interval="month",
-        interval_count=1,
-    )
-
-
 # create a subscription with the worker id
-def create_subscription(customer_id, worker_price, currency="usd"):
+def create_subscription(customer_id, price, currency="usd"):
     if currency == "usd":
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
@@ -129,7 +106,7 @@ def create_subscription(customer_id, worker_price, currency="usd"):
         customer=customer_id,
         items=[
             {
-                "price": worker_price,
+                "price": price,
                 "quantity": 1,
             }
         ],

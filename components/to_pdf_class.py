@@ -125,7 +125,7 @@ class Report:
         print(f'file is generated successfully and under {self.DEST_DIR}')
         print('sending email')
         send_email(report)
-        
+        #j
  
 
 

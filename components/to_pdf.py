@@ -62,16 +62,14 @@ class Report:
             "apartment": customer_row[9],
             "security": customer_row[10],
             "clause21_p": clause21_p,
-            "MXNU": MXNU,
-            "BRLU": BRLU,
-            "COPU": COPU,
         }
-
+        vars_dict.update({'MXN': f'{MXN:.2f}', 'BRL': f'{BRL:.2f}', 'COP': f'{COP:.2f}', 'MXNU': f'{MXNU:.2f}', 'BRLU': f'{BRLU:.2f}', 'COPU': f'{COPU:.2f}'})
+        
         print('rendering')
         output_name = f'{customer_row[1]}_base.pdf'
         # rendering to html string
-        self.vars_dict['template_src'] = 'file://' + self.TEMPLATE_SRC
-        rendered_string = template.render(self.vars_dict)
+        vars_dict['template_src'] = 'file://' + self.TEMPLATE_SRC
+        rendered_string = template.render(vars_dict)
         html = HTML(string=rendered_string)
         report = os.path.join(self.DEST_DIR, output_name)
         print('generating pdf')
