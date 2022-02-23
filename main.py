@@ -16,7 +16,8 @@ class App(MDApp):
 
         # to avoid bugs
         self.currency_check = False
-
+        self.customer_id = None
+        
         menu_items_local = [
             {
                 "viewclass": "OneLineIconListItem",
@@ -123,7 +124,7 @@ class App(MDApp):
 
         # add to database
         item_dict = {
-            "name": self.customer,
+            "name": self.root.ids.customer.text,
             "currency": self.currency,
             "company": self.root.ids.company.text,
             "phone": self.root.ids.phone.text,
@@ -139,12 +140,16 @@ class App(MDApp):
         except:
             print("customer already exists, try update!")
         # add to dropdowns
-        self.customer_row = dbutil.get_row(self.customer_id)
-        dbutil.verify_row(self.customer_row[1])
-        ### MAKE TESTS ###
-        if self.customer_row[12] is None:
-            customer = payment.create_customer(self.customer_row[1], self.customer_row[5])
-            dbutil.update_item("customer_id", customer.id, self.customer_id)
+        try:
+            if dbutil.verify_row(self.root.ids.customer.text):
+                self.customer_row = dbutil.get_row(self.customer_id)
+
+            ### MAKE TESTS ###
+            if self.customer_row[12] is None:
+                customer = payment.create_customer(self.customer_row[1], self.customer_row[5])
+                dbutil.update_item("customer_id", customer.id, self.customer_id)
+        except:
+            print("error!")
 
     def submit_payment_method(self):       
         card = self.root.ids.card_number.text

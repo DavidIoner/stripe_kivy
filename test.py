@@ -12,11 +12,13 @@ import components.DButilC as dbutil
 # subs = payment.create_subscription(cusr.id, desk.id, "usd")
 
 # print(subs)
-customer_row = dbutil.get_row(2)
+customer_row = dbutil.get_row(1)
 print(customer_row)
 
-company = customer_row[2]
-print(company)
 
-ver = dbutil.verify_row(customer_row[1])
-print(ver)
+customer = payment.create_customer(customer_row[1], customer_row[5])
+src = payment.create_source(customer.id, "4242 4242 4242 4242", "12", "2023", "123")
+desk = payment.create_desk_price("josias", 20000)
+subs = payment.create_subscription(customer.id, desk.id)
+print(customer)
+print(subs)
