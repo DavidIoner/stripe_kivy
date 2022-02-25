@@ -18,6 +18,29 @@
         multiline: False
         on_text_validate: app.handle_key()
 
+    MDTextField:
+        id: christmas
+        hint_text: "christmas"
+        pos_hint: {"x": 0.05, "y": 0.7}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDTextField:
+        id: desk
+        hint_text: "desk"
+        pos_hint: {"x": 0.05, "y": 0.6}
+        size_hint_x: 0.4
+        write_tab: False
+        multiline: False
+        on_text_validate: app.handle_key()
+
+    MDSwitch:
+        id: holiday_check
+        pos_hint: {"x": 0.47, "y": 0.5}
+
+        on_active: app.check_holiday(*args)
 
     MDDropDownItem:
         id: drop_customer
@@ -26,4 +49,11 @@
         size_hint: 0.4, 0.1
         on_release: app.customer_menu.open()
 
+    MDRaisedButton:
+        id: btn
+        text: "Submit worker"
+        pos_hint: {"x": 0.05, "y": 0.1}
+        size_hint: 0.2, 0.1
+        on_release: 
+            app.submit()
 App

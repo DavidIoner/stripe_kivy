@@ -15,10 +15,13 @@ import components.DButilC as dbutil
 customer_row = dbutil.get_row(1)
 print(customer_row)
 
-
 customer = payment.create_customer(customer_row[1], customer_row[5])
-src = payment.create_source(customer.id, "4242 4242 4242 4242", "12", "2023", "123")
-desk = payment.create_desk_price("josias", 20000)
-subs = payment.create_subscription(customer.id, desk.id)
-print(customer)
-print(subs)
+token = payment.create_card_token(customer, "4242 4242 4242 4242", "12", "2023", "123")
+# src = payment.create_source(customer.id, "4242 4242 4242 4242", "12", "2023", "123")
+# desk = payment.create_desk_price("josias", 20000)
+# subs = payment.create_subscription(customer.id, desk.id)
+print(token)
+# print(subs)
+# charge = payment.create_charge("cus_LDKywv2zFiaC8r", 200)
+# print(charge)
+

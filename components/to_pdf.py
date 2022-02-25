@@ -78,6 +78,6 @@ class Report:
 
     def create_worker(self, template_file):
         pass
-
+#
     def merge_pdf(self, output_name):
         pass

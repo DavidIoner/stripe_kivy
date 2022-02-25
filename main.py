@@ -51,7 +51,6 @@ class App(MDApp):
             {
                 "viewclass": "OneLineIconListItem",
                 "text": dbutil.get_item("name", i, "id"),
-                "id": i,
                 "height": dp(56),
                 "on_release": lambda x=f'{i} {dbutil.get_item("name", i, "id")}': self.set_customer(x)}
             
@@ -80,6 +79,7 @@ class App(MDApp):
         else:
             self.specific_location = text_item
 
+    #### Terminar o codigo abaixo ####
     def set_customer(self, text_item):
         self.customer_id = int(text_item[0])
         self.kv.ids.drop_customer.set_item(text_item)
@@ -126,6 +126,7 @@ class App(MDApp):
         item_dict = {
             "name": self.root.ids.customer.text,
             "currency": self.currency,
+            "located_at": "localidade",
             "company": self.root.ids.company.text,
             "phone": self.root.ids.phone.text,
             "email": self.root.ids.email.text,
@@ -140,16 +141,16 @@ class App(MDApp):
         except:
             print("customer already exists, try update!")
         # add to dropdowns
-        try:
-            if dbutil.verify_row(self.root.ids.customer.text):
-                self.customer_row = dbutil.get_row(self.customer_id)
+        # try:
+        #     if dbutil.verify_row(self.root.ids.customer.text):
+        #         self.customer_row = dbutil.get_row(self.customer_id)
 
-            ### MAKE TESTS ###
-            if self.customer_row[12] is None:
-                customer = payment.create_customer(self.customer_row[1], self.customer_row[5])
-                dbutil.update_item("customer_id", customer.id, self.customer_id)
-        except:
-            print("error!")
+        #     ### MAKE TESTS ###
+        #     if self.customer_row[12] is None:
+        #         customer = payment.create_customer(self.customer_row[1], self.customer_row[5])
+        #         dbutil.update_item("customer_id", customer.id, self.customer_id)
+        # except:
+        #     print("error!")
 
     def submit_payment_method(self):       
         card = self.root.ids.card_number.text

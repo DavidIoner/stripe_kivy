@@ -13,20 +13,20 @@ cursor = db.cursor()
 # name = cursor.execute("SELECT name FROM customers WHERE id=1")
 
 
-def insert_data(item_dict, table="customers"):
+def insert_data_customer(item_dict):
     try:
         cursor.execute(
-            f"INSERT INTO {table} (name, phone, email) VALUES ('{item_dict['name']}', '{item_dict['phone']}', '{item_dict['email']}')"
+            f"INSERT INTO customers (name, company, located_at, phone, email, local, onboard, security, apartment, currency) VALUES ('{item_dict['name']}','{item_dict['company']}','{item_dict['located_at']}', '{item_dict['phone']}', '{item_dict['email']}', '{item_dict['local']}', '{item_dict['onboard']}', '{item_dict['security']}', '{item_dict['apartment']}', '{item_dict['currency']}')"
         )
         db.commit()
         print(f"{item_dict['name']} added to database")
     except sqlite3.OperationalError:
         print("Error: could not insert data")
 
-def insert_data_customer(item_dict):
+def insert_data_worker(item_dict):
     try:
         cursor.execute(
-            f"INSERT INTO customers (name, company, located_at, phone, email, local, onboard, security, apartment, currency) VALUES ('{item_dict['name']}','{item_dict['company']}','{item_dict['located_at']}', '{item_dict['phone']}', '{item_dict['email']}', '{item_dict['local']}', '{item_dict['onboard']}', '{item_dict['security']}', '{item_dict['apartment']}', '{item_dict['currency']}')"
+            f"INSERT INTO workers (name, customer, wage, christmas, desk, holiday) VALUES ('{item_dict['name']}','{item_dict['customer']}','{item_dict['wage']}', '{item_dict['christmas']}', '{item_dict['desk']}', '{item_dict['holiday']}')"
         )
         db.commit()
         print(f"{item_dict['name']} added to database")

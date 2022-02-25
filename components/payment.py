@@ -34,26 +34,36 @@ def create_customer(name, email, currency="usd"):
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
         stripe.api_key = "mxnkey"
-    return stripe.Customer.create(
+    customer = stripe.Customer.create(
         email=email,
         name=name,
+        # payment_method = "pm_card_visa",
+        # invoice_settings = {"default_payment_method": "pm_card_visa"},
+        # card={
+        #     "number": "4242424242424242",
+        #     "exp_month": 2,
+        #     "exp_year": 2023,
+        #     "cvc": "314",
+        # },
     )
+
+    return customer
+
 
 def create_source(customer_id, card_number, exp_month, exp_year, cvc, currency="usd"):
     if currency == "usd":
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
         stripe.api_key = "mxnkey"
-    return stripe.Customer.create_source(
-        customer_id,
-        source={
-            "type": "card",
-            "number": card_number,
-            "exp_month": exp_month,
-            "exp_year": exp_year,
-            "cvc": cvc
-        },
+    stripe.Source.create(
+        type='card',
+        currency='usd',
+        owner={
+            'email': 'jenny.rosen@example.com'
+        }
     )
+
+
 
 # create a product with the worker id
 def create_product(worker_name, currency="usd"):
