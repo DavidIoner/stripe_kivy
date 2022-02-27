@@ -56,13 +56,15 @@ class App(MDApp):
         else:
             self.holiday = "0"
         # add to database
+        if self.root.ids.christmas.text == 0:
+            christmas = None
 
         item_dict = {
             "customer": self.customer_row[1],
             "holiday": self.holiday,
             "name": self.root.ids.worker.text,
             "wage": self.root.ids.wage.text,
-            "christmas": self.root.ids.christmas.text,
+            "christmas": christmas,
             "desk": self.root.ids.desk.text,
         }
         print(item_dict)

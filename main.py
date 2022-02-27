@@ -108,12 +108,10 @@ class App(MDApp):
         if active:
             self.currency_check = True
             self.root.ids.onboard.hint_text = "Onboard (MXN)"
-            self.root.ids.security.hint_text = "Security deposit (MXN)"
             self.root.ids.apartment.hint_text = "Apartment (MXN)"
         if not active:
             self.currency_check = False
             self.root.ids.onboard.hint_text = "Onboard (USD)"
-            self.root.ids.security.hint_text = "Security deposit (USD)"
             self.root.ids.apartment.hint_text = "Apartment (USD)"
 
     def submit(self):
@@ -133,7 +131,6 @@ class App(MDApp):
             "licensor": self.root.ids.licensor.text,
             "local": self.specific_location,
             "onboard": self.root.ids.onboard.text,
-            "security": self.root.ids.security.text,
             "apartment": self.root.ids.apartment.text,
         }
         try:
