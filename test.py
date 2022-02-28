@@ -19,3 +19,6 @@ print(customer_row)
 
 # subs = payment.create_subscription("cus_LETyRtzhL2syUv", "price_1KY1EHHPXOp77Gbz2TuhBA8F", "usd")
 # print(subs)
+
+ret = payment.retrieve_customer("cus_LEgIDhOvkZt0fP")
+print(ret)

@@ -41,6 +41,7 @@ class App(MDApp):
         self.kv.ids.drop_customer.set_item(text_item)
         self.customer_menu.dismiss()
         self.customer_row = dbutil.get_row(self.customer_id)
+        ## mostrar a lista dos workers desse customer (pelo menos o nome e a qtd em um menu)
 
 
     def check_holiday(self, checkbox, active):
@@ -92,6 +93,11 @@ class App(MDApp):
 
         # DELETE THE TEMP PDFS #
 
+    ## criar as subscriptions e charges correspondentes
+    def submit_payments(self):
+        ## deve conferir os que ja existem e os que devem ser adicionados
+            # isso facilitara para excluir um worker especifico no futuro
+        pass
 
     def update(self):
         pass

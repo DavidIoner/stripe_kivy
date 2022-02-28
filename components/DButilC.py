@@ -14,9 +14,10 @@ cursor = db.cursor()
 
 
 def insert_data_customer(item_dict):
+    print(item_dict)
     try:
         cursor.execute(
-            f"INSERT INTO customers (name, company, located_at, phone, email, local, onboard, security, apartment, currency) VALUES ('{item_dict['name']}','{item_dict['company']}','{item_dict['located_at']}', '{item_dict['phone']}', '{item_dict['email']}', '{item_dict['local']}', '{item_dict['onboard']}', '{item_dict['security']}', '{item_dict['apartment']}', '{item_dict['currency']}')"
+            f"INSERT INTO customers (name, company, located_at, phone, email, licensor, local, onboard, apartment, currency) VALUES ('{item_dict['name']}','{item_dict['company']}','{item_dict['located_at']}', '{item_dict['phone']}', '{item_dict['email']}', '{item_dict['licensor']}', '{item_dict['local']}', '{float(item_dict['onboard'])}', '{float(item_dict['apartment'])}', '{item_dict['currency']}')"
         )
         db.commit()
         print(f"{item_dict['name']} added to database")
@@ -83,6 +84,13 @@ def get_qtd(table="customers"):
     db.commit()
     count = list(qtd.fetchone())[0]
     return int(count)
+
+
+def get_last_id(table="customers"):
+    cursor.execute(f"SELECT MAX(id) FROM {table}")
+    fetch = cursor.fetchone()
+    db.commit()
+    return fetch[0]
 
 
 # verify if row exists on database by the "name" column

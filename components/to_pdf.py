@@ -50,9 +50,8 @@ class Report:
         if self.customer_row[10] != '0' or self.customer_row[10] is not None:
             # definir o local!!
             city = 'cidade'
-            clause21_p = f'21. Apartment Rental: Should the licensee elect to pay for the service, 5CRE will provide non-exclusive use of a two-bedroom apartment in {city} for ${customer_row[10]} USD per year, payable as one lump sum at signing. 5CRE shall provide cleaning before and after their stay. Bedding, towels, and toiletries can be provided at an extra charge. All bookings are made on a first-come, first-serve basis. The customer is guaranteed three nights per month. Customer may extend their stay, free of charge, or elect to stay multiple times in any one-month period on the condition that it is not already booked by another customer. No stay may exceed ten days. 5CRE retains the right to refund a proportionate share of the annual payment and terminate staying rights for any reason. Included cleaning is limited to reasonable stay wear and tear. Apartment sharing agreement shall expire one year from payment. <br> <br>'
-        else:
-            clause21_p = ''
+            clause21_p = f'21. Apartment Rental: Should the licensee elect to pay for the service, 5CRE will provide non-exclusive use of a two-bedroom apartment in {city} for ${self.customer_row[10]} USD per year, payable as one lump sum at signing. 5CRE shall provide cleaning before and after their stay. Bedding, towels, and toiletries can be provided at an extra charge. All bookings are made on a first-come, first-serve basis. The customer is guaranteed three nights per month. Customer may extend their stay, free of charge, or elect to stay multiple times in any one-month period on the condition that it is not already booked by another customer. No stay may exceed ten days. 5CRE retains the right to refund a proportionate share of the annual payment and terminate staying rights for any reason. Included cleaning is limited to reasonable stay wear and tear. Apartment sharing agreement shall expire one year from payment. <br> <br>'
+            vars_dict.update({"clause21_p": clause21_p})
 
 
         vars_dict.update({
@@ -68,7 +67,6 @@ class Report:
             "onboard": self.customer_row[8],
             "apartment": self.customer_row[9],
             "security": self.customer_row[10],
-            "clause21_p": clause21_p,
         })
         vars_dict.update({'MXN': f'{self.MXN:.2f}', 'BRL': f'{self.BRL:.2f}', 'COP': f'{self.COP:.2f}', 'MXNU': f'{self.MXNU:.2f}', 'BRLU': f'{self.BRLU:.2f}', 'COPU': f'{self.COPU:.2f}'})
         
@@ -97,16 +95,16 @@ class Report:
             ## conferir se eh mxn ou mxnu
             if self.currency == 'USD':
                 holiday = float(worker_row[3]) * 12 * 0.023 * self.MXN
-                holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br>'
+                holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
                 vars_dict.update({"holiday_p": holiday_p}) 
                 print("currency is USD")  
             if self.currency.upper == 'MXN':
                 holiday = float(worker_row[3]) * 12 * 0.023 
-                holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br>'
+                holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
                 vars_dict.update({"holiday_p": holiday_p})      
 
         if worker_row[4] is not None:
-            christmas_p = f'<strong>Christmas Bonus</strong> $ MXN ($ USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br>'
+            christmas_p = f'<strong>Christmas Bonus</strong> $ MXN ($ USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
             vars_dict.update({'christmas_p': christmas_p})        
             print(vars_dict)  
         

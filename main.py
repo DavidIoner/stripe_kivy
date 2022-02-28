@@ -56,7 +56,6 @@ class App(MDApp):
             
             for i in range(0, dbutil.get_qtd())
         ]
-        # sort list alphabetically, the last customer create a bug, so the dropdown dont show it
 
 
         self.customer_menu = MDDropdownMenu(
@@ -124,6 +123,7 @@ class App(MDApp):
         item_dict = {
             "name": self.root.ids.customer.text,
             "currency": self.currency,
+            ## ajustar local!
             "located_at": "localidade",
             "company": self.root.ids.company.text,
             "phone": self.root.ids.phone.text,
@@ -134,7 +134,11 @@ class App(MDApp):
             "apartment": self.root.ids.apartment.text,
         }
         try:
+            # print(item_dict)
             dbutil.insert_data_customer(item_dict)
+            customer_id = dbutil.get_last_id()
+            print(f'customer id: {customer_id}')
+            self.customer_row = dbutil.get_row(customer_id)
         except:
             print("customer already exists, try update!")
         # add to dropdowns
@@ -155,9 +159,13 @@ class App(MDApp):
         exp_month = self.root.ids.exp_month.text
         exp_year = self.root.ids.exp_year.text
         ### MAKE TESTS ###
-        if self.customer_row[13] is None:
-            card_token = payment.create_card_token(self.customer_row[12], card, exp_month, exp_year, cvc)
-            dbutil.update_item("card_token", card_token, self.customer_id)
+        if self.customer_row[11] is None:
+            try:
+                source = payment.create_source(self.customer_row[5], card, exp_month, exp_year, cvc)
+                customer = payment.create_customer(self.customer_row[1], self.customer_row[5], source.id)
+                dbutil.update_item("customer_id", customer.id, self.customer_id)
+            except:
+                print("error! (create customer payment)")
 
 
     def update(self):
