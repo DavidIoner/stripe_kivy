@@ -1,35 +1,8 @@
 import stripe
 
 
-# create a card token from a card number
-def create_card_token(
-    customer_id, card_number, exp_month, exp_year, cvc, currency="usd"
-):
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
-    token = stripe.Token.create(
-        customer=customer_id,
-        card={
-            "number": card_number,
-            "exp_month": exp_month,
-            "exp_year": exp_year,
-            "cvc": cvc,
-        },
-    )
-    return token
-    # attach the token to the customer
-    # stripe.PaymentMethod.attach(
-    #     token.id,
-    #     customer=customer_id,
-    #     type="card",
-    # )
-    # return token
-
-
 # create a customer
-def create_customer(name, email, currency="usd"):
+def create_customer(name, email, source, currency="usd"):
     if currency == "usd":
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
@@ -37,45 +10,29 @@ def create_customer(name, email, currency="usd"):
     customer = stripe.Customer.create(
         email=email,
         name=name,
-        # payment_method = "pm_card_visa",
-        # invoice_settings = {"default_payment_method": "pm_card_visa"},
-        # card={
-        #     "number": "4242424242424242",
-        #     "exp_month": 2,
-        #     "exp_year": 2023,
-        #     "cvc": "314",
-        # },
+        source=source,
     )
 
     return customer
 
 
-def create_source(customer_id, card_number, exp_month, exp_year, cvc, currency="usd"):
+def create_source(email, card_number, exp_month, exp_year, cvc, currency="usd"):
     if currency == "usd":
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
         stripe.api_key = "mxnkey"
-    stripe.Source.create(
+    return stripe.Source.create(
         type='card',
         currency='usd',
+        card={
+            "number": card_number,
+            "exp_month": exp_month,
+            "exp_year": exp_year,
+            "cvc": cvc,
+        },
         owner={
-            'email': 'jenny.rosen@example.com'
-        }
+            "email": email,}
     )
-
-
-
-# create a product with the worker id
-def create_product(worker_name, currency="usd"):
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
-    product = stripe.Product.create(
-        name=f"{worker_name}_service",
-        type="service",
-    )
-    return product
 
 
 # create a price with the worker id
@@ -109,8 +66,8 @@ def create_worker_price(worker_name, amount, currency="usd"):
         unit_amount=amount,
         nickname=f"{worker_name}_service_price",
         recurring={
-            "interval": "day",
-            "interval_count": 30,
+            "interval": "month",
+            "interval_count": 1,
         },
         product_data={
             "name": f"{worker_name}_service",
@@ -137,7 +94,7 @@ def create_subscription(customer_id, price, currency="usd"):
 
 
 # create a charge for a customer
-def create_charge(customer_id, amount, currency="usd"):
+def create_charge(customer_id, amount, source, currency="usd"):
     if currency == "usd":
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
@@ -145,6 +102,7 @@ def create_charge(customer_id, amount, currency="usd"):
     return stripe.Charge.create(
         customer=customer_id,
         amount=amount,
+        source=source,
         currency=currency,
         description="Charge for" + customer_id,
     )
@@ -174,5 +132,3 @@ def retrieve_customer(customer_id, currency="usd"):
         stripe.api_key = "mxnkey"
     return stripe.Customer.retrieve(customer_id)
 
-
-# create a token for a customer card
