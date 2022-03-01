@@ -66,7 +66,6 @@ class Report:
             "licensor": self.customer_row[6],
             "onboard": self.customer_row[8],
             "apartment": self.customer_row[9],
-            "security": self.customer_row[10],
         })
         vars_dict.update({'MXN': f'{self.MXN:.2f}', 'BRL': f'{self.BRL:.2f}', 'COP': f'{self.COP:.2f}', 'MXNU': f'{self.MXNU:.2f}', 'BRLU': f'{self.BRLU:.2f}', 'COPU': f'{self.COPU:.2f}'})
         
@@ -80,6 +79,7 @@ class Report:
         print('generating pdf')
         html.write_pdf(report, stylesheets=[css])
         print(f'base file is generated successfully and under {self.DEST_DIR}')
+        return report
 
     def create_worker(self, worker_id, exibith):
         env = Environment(loader=FileSystemLoader(self.TEMPLATE_SRC))
@@ -140,19 +140,8 @@ class Report:
         print('generating pdf')
         html.write_pdf(report, stylesheets=[css])
         print(f'base file is generated successfully and under {self.DEST_DIR}')
+        return report
 
-
-
-    def create_workers(self):
-        for i in range(1, dbutil.get_qtd(table="workers")+1):
-            worker_row = dbutil.get_row(i, table="workers")
-            if worker_row[1] == self.customer_row[1]:
-                print(f'generating worker {i}')
-                try:
-                    self.create_worker(worker_row[0], i)
-                except:
-                    ## exclude all and return an error
-                    print(f'error generating worker {i}')
 
 
 

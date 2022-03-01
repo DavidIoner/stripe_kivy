@@ -38,9 +38,14 @@
 
     MDSwitch:
         id: holiday_check
-        pos_hint: {"x": 0.47, "y": 0.5}
-
+        pos_hint: {"x": 0.05, "y": 0.5}
         on_active: app.check_holiday(*args)
+
+    MDLabel:
+        id: holiday_label
+        text: "Holiday fee deactive!"
+        pos_hint: {"x": 0.2, "y": 0.49}
+        size_hint: 0.4, 0.1
 
     MDDropDownItem:
         id: drop_customer
@@ -50,10 +55,26 @@
         on_release: app.customer_menu.open()
 
     MDRaisedButton:
-        id: btn
+        id: btn_submit
         text: "Submit worker"
         pos_hint: {"x": 0.05, "y": 0.1}
         size_hint: 0.2, 0.1
         on_release: 
             app.submit()
+
+    MDRaisedButton:
+        id: btn_contract
+        text: "Create contract"
+        pos_hint: {"x": 0.4, "y": 0.1}
+        size_hint: 0.2, 0.1
+        on_release: 
+            app.generate_pdf()
+
+    MDRaisedButton:
+        id: btn_payment
+        text: "submit payment"
+        pos_hint: {"x": 0.75, "y": 0.1}
+        size_hint: 0.2, 0.1
+        on_release: 
+            app.submit_payments()
 App

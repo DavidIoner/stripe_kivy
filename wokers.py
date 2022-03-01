@@ -1,10 +1,8 @@
-from operator import itemgetter
-
 from kivy.lang import Builder
 from kivy.metrics import dp
 from kivymd.app import MDApp
 from kivymd.uix.menu import MDDropdownMenu
-
+from PyPDF2 import PdfFileMerger
 import components.to_pdf as pdf
 import components.DButilC as dbutil
 import components.payment as payment
@@ -17,6 +15,7 @@ class App(MDApp):
 
         # to avoid bugs
         self.holiday_check = False
+        self.customer_row = None
 
         menu_items_customer = [
             {
@@ -52,49 +51,79 @@ class App(MDApp):
             self.holiday_check = False
 
     def submit(self):
-        if self.holiday_check:
-            self.holiday = "1"
-        else:
-            self.holiday = "0"
-        # add to database
-        if self.root.ids.christmas.text == 0:
-            christmas = None
+        item_dict = {}
+        if self.customer_row is not None:
+            if self.holiday_check:
+                self.holiday = "1"
+                item_dict.update({"holiday": self.holiday})
+            else:
+                self.holiday = "0"
+                item_dict.update({"holiday": self.holiday})
 
-        item_dict = {
-            "customer": self.customer_row[1],
-            "holiday": self.holiday,
-            "name": self.root.ids.worker.text,
-            "wage": self.root.ids.wage.text,
-            "christmas": christmas,
-            "desk": self.root.ids.desk.text,
-        }
-        print(item_dict)
-        try:
-            dbutil.insert_data_worker(item_dict)
-        except:
-            print("worker already exists or the data is invalid")
+            if self.root.ids.christmas.text == 0:
+                christmas = None
+                item_dict.update({"christmas": christmas})
+            else:
+                christmas = self.root.ids.christmas.text
+                item_dict.update({"christmas": christmas})
+
+            item_dict.update({
+                "customer": self.customer_row[1],
+                "holiday": self.holiday,
+                "name": self.root.ids.worker.text,
+                "wage": self.root.ids.wage.text,
+                "desk": self.root.ids.desk.text,
+            })
+            print(item_dict)
+            # add to database
+            try:
+                dbutil.insert_data_worker(item_dict)
+            except:
+                print("worker already exists or the data is invalid")
+        else:
+            print("customer not selected")
         # add to dropdowns
 
     def generate_pdf(self):
-        ## GENERATE CUSTOMER PART ##
-        customer_pdf = pdf.Report(self.customer_id)
-        customer_pdf.create_customer()
-        ## GENERATE WORKER PART ##
+        # GENERATE CUSTOMER PART #
+        import components.to_pdf as pdf
+        gen_pdf = pdf.Report(self.customer_id)
+        customer = gen_pdf.create_customer()
+        pdf_list = [customer]
+        # GENERATE WORKER PART #
         exibith = 0
         for i in range(1, dbutil.get_qtd(table="workers")+1):
-            row = dbutil.get_row(i, table="workers")
-            if row[1] == self.customer_row[1]:
+            worker_row = dbutil.get_row(i, table="workers")
+            if worker_row[1] == self.customer_row[1]:
                 exibith += 1
-                worker_pdf = pdf.Report(row[0])
-                worker_pdf.create_worker()
+                worker = gen_pdf.create_worker(worker_row[0], exibith)
+                pdf_list.append(worker)
+                # create a price for that worker
+                biwage = float(worker_row[3]) / 2
+                try:
+                    desk = payment.create_desk_price(worker_row[2], worker_row[5], self.customer_row[10])
+                    dbutil.update_item("desk_id", desk.id, worker_row[0], "workers")
+                    wage = payment.create_worker_price(worker_row[2], biwage, self.customer_row[10])
+                    dbutil.update_item("wage_id", wage.id, worker_row[0], "workers")
+                    # merge the pdfs
+                except:
+                    print('error, could not create desk or wage price')
 
+        merger = PdfFileMerger()
 
-        ## MERGE THE CONTRACTS ##
+        for pdf in pdf_list:
+            merger.append(pdf)
 
-        # DELETE THE TEMP PDFS #
+        merger.write(f"components/output/{self.customer_row[1]}_contract.pdf")
+        merger.close()
+
+        # exluir os pdfs temporarios
+        # send email
+
 
     ## criar as subscriptions e charges correspondentes
     def submit_payments(self):
+
         ## deve conferir os que ja existem e os que devem ser adicionados
             # isso facilitara para excluir um worker especifico no futuro
         pass
