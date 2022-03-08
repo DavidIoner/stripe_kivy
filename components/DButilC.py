@@ -1,16 +1,8 @@
 import sqlite3
 
-import pandas as pd
 
 db = sqlite3.connect("components/contract.db")
-
 cursor = db.cursor()
-# cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED")
-
-# cursor.execute("INSERT INTO customers (name) VALUES ('Juan')")
-# insert into db where name = 'Juan'
-# cursor.execute("UPDATE customers SET name='robertinho' WHERE id=1")
-# name = cursor.execute("SELECT name FROM customers WHERE id=1")
 
 
 def insert_data_customer(item_dict):
@@ -34,6 +26,11 @@ def insert_data_worker(item_dict):
     except sqlite3.OperationalError:
         print("Error: could not insert data")
 
+def get_all(table="customers"):
+    cursor.execute(f"SELECT * FROM {table}")
+    fetch = cursor.fetchall()
+    db.commit()
+    return fetch
 
 def get_item(item, where_id, where="name", table="customers"):
     try:
@@ -103,12 +100,29 @@ def verify_row(name, table="customers"):
         return False
 
 
+
+
+def exclude_data(table="customers"):
+    cursor.execute(f"DELETE FROM {table}")
+    db.commit()
+
+
+def delete_row(id, table="customers"):
+    cursor.execute(f"DELETE FROM {table} WHERE id={id}")
+    db.commit()
+
+
 # close database connection
 def close_db():
     db.close()
 
 
-# set all existing ids in order starting from 0
-def set_ids(table="customers"):
-    cursor.execute(f"UPDATE {table} SET id=rowid-1")
-    db.commit()
+
+
+
+
+
+
+
+
+

@@ -74,7 +74,7 @@ class App(MDApp):
                 "wage": self.root.ids.wage.text,
                 "desk": self.root.ids.desk.text,
             })
-            print(item_dict)
+
             # add to database
             try:
                 dbutil.insert_data_worker(item_dict)
@@ -86,7 +86,6 @@ class App(MDApp):
 
     def generate_pdf(self):
         # GENERATE CUSTOMER PART #
-        import components.to_pdf as pdf
         gen_pdf = pdf.Report(self.customer_id)
         customer = gen_pdf.create_customer()
         pdf_list = [customer]
@@ -94,6 +93,7 @@ class App(MDApp):
         exibith = 0
         for i in range(1, dbutil.get_qtd(table="workers")+1):
             worker_row = dbutil.get_row(i, table="workers")
+            print(worker_row)
             if worker_row[1] == self.customer_row[1]:
                 exibith += 1
                 worker = gen_pdf.create_worker(worker_row[0], exibith)
@@ -102,20 +102,16 @@ class App(MDApp):
                 biwage = float(worker_row[3]) / 2
                 try:
                     desk = payment.create_desk_price(worker_row[2], worker_row[5], self.customer_row[10])
+                    print(desk)
                     dbutil.update_item("desk_id", desk.id, worker_row[0], "workers")
                     wage = payment.create_worker_price(worker_row[2], biwage, self.customer_row[10])
+                    print(wage)
                     dbutil.update_item("wage_id", wage.id, worker_row[0], "workers")
                     # merge the pdfs
                 except:
                     print('error, could not create desk or wage price')
 
-        merger = PdfFileMerger()
-
-        for pdf in pdf_list:
-            merger.append(pdf)
-
-        merger.write(f"components/output/{self.customer_row[1]}_contract.pdf")
-        merger.close()
+        pdf.merge_pdf(pdf_list, self.customer_row[1])
 
         # exluir os pdfs temporarios
         # send email

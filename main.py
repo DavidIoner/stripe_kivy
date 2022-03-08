@@ -47,14 +47,15 @@ class App(MDApp):
             position="center",
             width_mult=4,
         )
+        
         menu_items_customer = [
             {
                 "viewclass": "OneLineIconListItem",
-                "text": dbutil.get_item("name", i, "id"),
+                "text": customer[1],
                 "height": dp(56),
-                "on_release": lambda x=f'{i} {dbutil.get_item("name", i, "id")}': self.set_customer(x)}
+                "on_release": lambda x=f'{customer[1]}': self.set_customer(customer[0])}
             
-            for i in range(0, dbutil.get_qtd())
+            for customer in dbutil.get_all()
         ]
 
 
@@ -65,6 +66,8 @@ class App(MDApp):
             width_mult=4,
         )
 
+
+    ## usar somente o numero e pegar no banco pelo id
     def set_local(self, text_item):
         self.kv.ids.drop_local.set_item(text_item)
         self.local_menu.dismiss()
@@ -79,13 +82,10 @@ class App(MDApp):
             self.specific_location = text_item
 
     #### Terminar o codigo abaixo ####
-    def set_customer(self, text_item):
-        self.customer_id = int(text_item[0])
-        self.kv.ids.drop_customer.set_item(text_item)
+    def set_customer(self, customer_id):
+        self.customer_row = dbutil.get_row(customer_id)
+        self.kv.ids.drop_customer.set_item(self.customer_row[1])
         self.customer_menu.dismiss()
-        print(self.customer_id, text_item)
-
-        self.customer_row = dbutil.get_row(self.customer_id)
         print(self.customer_row)
         
         # set fields
@@ -94,6 +94,10 @@ class App(MDApp):
             self.root.ids.company.text = self.customer_row[2]
         else:
             self.root.ids.company.text = ""
+        if self.customer_row[3] is not None:
+            self.root.ids.located_at.text = self.customer_row[3]
+        else:
+            self.root.ids.located_at.text = ""
         if self.customer_row[4] is not None:
             self.root.ids.phone.text = self.customer_row[4]
         else:
@@ -102,6 +106,25 @@ class App(MDApp):
             self.root.ids.email.text = self.customer_row[5]
         else:
             self.root.ids.email.text = ""
+        if self.customer_row[6] is not None:
+            self.root.ids.licensor.text = self.customer_row[6]
+        else:
+            self.root.ids.licensor.text = ""
+        if self.customer_row[8] is not None:
+            self.root.ids.onboard.text = str(self.customer_row[8])
+        else:
+            self.root.ids.onboard.text = ""
+        if self.customer_row[9] is not None:
+            self.root.ids.apartment.text = str(self.customer_row[9])
+        else:
+            self.root.ids.apartment.text = ""
+        # if self.customer_row[7] is not None:
+        #     self.set_local(self.customer_row[7])
+        # else:
+        #     self.set_local(0)
+        if self.customer_row[10] is not None:
+            pass
+        
 
     def check_currency(self, checkbox, active):
         if active:
@@ -115,9 +138,14 @@ class App(MDApp):
 
     def submit(self):
         if self.currency_check:
-            self.currency = "MXN"
+            self.currency = "mxn"
         else:
-            self.currency = "USD"
+            self.currency = "usd"
+
+        if self.root.ids.onboard.text == "":
+            self.root.ids.onboard.text = "0"
+        if self.root.ids.apartment.text == "":
+            self.root.ids.apartment.text = "0"
 
         # add to database
         item_dict = {
@@ -136,9 +164,9 @@ class App(MDApp):
         try:
             # print(item_dict)
             dbutil.insert_data_customer(item_dict)
-            customer_id = dbutil.get_last_id()
-            print(f'customer id: {customer_id}')
-            self.customer_row = dbutil.get_row(customer_id)
+            # customer_id = dbutil.get_last_id()
+            # print(f'customer id: {customer_id}')
+            # self.customer_row = dbutil.get_row(customer_id)
         except:
             print("customer already exists, try update!")
         # add to dropdowns

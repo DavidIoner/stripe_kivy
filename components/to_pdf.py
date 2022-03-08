@@ -1,4 +1,3 @@
-from calendar import c
 import components.DButilC as dbutil
 from weasyprint import HTML
 import os
@@ -6,6 +5,7 @@ from jinja2 import Environment, FileSystemLoader
 import requests
 from datetime import datetime
 from components.send_pdf import send_email
+from PyPDF2 import PdfFileMerger
 
 
 def get_rate(id="MXN-BRL"):
@@ -25,7 +25,7 @@ class Report:
         self.DEST_DIR = os.path.join(self.ROOT, 'output')
 
         self.customer_row = dbutil.get_row(self.customer_id)
-        self.currency = self.customer_row[11]
+        self.currency = self.customer_row[10]
 
         self.BRL = get_rate('BRL-USD')
         self.MXN = get_rate('MXN-USD')
@@ -47,10 +47,10 @@ class Report:
         local = 1
         specific_location = ''
         ###### DEFINE CLAUSE 21 ######
-        if self.customer_row[10] != '0' or self.customer_row[10] is not None:
+        if self.customer_row[9] != '0' or self.customer_row[9] is not None:
             # definir o local!!
             city = 'cidade'
-            clause21_p = f'21. Apartment Rental: Should the licensee elect to pay for the service, 5CRE will provide non-exclusive use of a two-bedroom apartment in {city} for ${self.customer_row[10]} USD per year, payable as one lump sum at signing. 5CRE shall provide cleaning before and after their stay. Bedding, towels, and toiletries can be provided at an extra charge. All bookings are made on a first-come, first-serve basis. The customer is guaranteed three nights per month. Customer may extend their stay, free of charge, or elect to stay multiple times in any one-month period on the condition that it is not already booked by another customer. No stay may exceed ten days. 5CRE retains the right to refund a proportionate share of the annual payment and terminate staying rights for any reason. Included cleaning is limited to reasonable stay wear and tear. Apartment sharing agreement shall expire one year from payment. <br> <br>'
+            clause21_p = f'21. Apartment Rental: Should the licensee elect to pay for the service, 5CRE will provide non-exclusive use of a two-bedroom apartment in {city} for ${self.customer_row[9]} USD per year, payable as one lump sum at signing. 5CRE shall provide cleaning before and after their stay. Bedding, towels, and toiletries can be provided at an extra charge. All bookings are made on a first-come, first-serve basis. The customer is guaranteed three nights per month. Customer may extend their stay, free of charge, or elect to stay multiple times in any one-month period on the condition that it is not already booked by another customer. No stay may exceed ten days. 5CRE retains the right to refund a proportionate share of the annual payment and terminate staying rights for any reason. Included cleaning is limited to reasonable stay wear and tear. Apartment sharing agreement shall expire one year from payment. <br> <br>'
             vars_dict.update({"clause21_p": clause21_p})
 
 
@@ -93,12 +93,12 @@ class Report:
         if worker_row[6] == "1":
             print('holiday actived!')
             ## conferir se eh mxn ou mxnu
-            if self.currency == 'USD':
+            if self.currency == 'usd':
                 holiday = float(worker_row[3]) * 12 * 0.023 * self.MXN
                 holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
                 vars_dict.update({"holiday_p": holiday_p}) 
                 print("currency is USD")  
-            if self.currency.upper == 'MXN':
+            if self.currency.upper == 'mxn':
                 holiday = float(worker_row[3]) * 12 * 0.023 
                 holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
                 vars_dict.update({"holiday_p": holiday_p})      
@@ -109,11 +109,11 @@ class Report:
             print(vars_dict)  
         
 
-        if self.currency == 'USD':
+        if self.currency == 'usd':
             desk_fee_usd = worker_row[4]
             affiliate = "5CRE’s affiliate."
             vars_dict.update({"desk_fee_USD": desk_fee_usd, "affiliate": affiliate})
-        elif self.currency == 'MXN':
+        elif self.currency == 'mxn':
             ## ver se esta certo
             desk_fee_usd = worker_row[4] / self.MXN
             affiliate = "5CRE’s LATAM affiliate."
@@ -126,7 +126,7 @@ class Report:
             "currency": self.currency,
             "exibith": exibith,
             "biwage": biwage,
-            "worker": worker_row[1],
+            "worker": worker_row[2],
             "wage": worker_row[3],
             "desk": worker_row[4],     
         })
@@ -146,5 +146,11 @@ class Report:
 
 
 #
-    def merge_pdf(self, output_name):
-        pass
+def merge_pdf( pdf_list, output_name):
+    merger = PdfFileMerger()
+
+    for pdf in pdf_list:
+        merger.append(pdf)
+
+    merger.write(f"components/output/{output_name}.pdf")
+    merger.close()

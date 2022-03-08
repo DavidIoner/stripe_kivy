@@ -2,8 +2,8 @@ import components.payment as payment
 import components.DButilC as dbutil
 
 
-customer_row = dbutil.get_row(1)
-print(customer_row)
+# customer_row = dbutil.get_row(1)
+# print(customer_row)
 
 # source = payment.create_source(customer_row[5], "4242424242424242", 1, 2023, 314, "usd")
 # print(source)
@@ -14,11 +14,14 @@ print(customer_row)
 # charge = payment.create_charge("cus_LETyRtzhL2syUv", 200, "src_1KY0z0HPXOp77GbzvT9W57rG")
 # print(charge)
 
-# price = payment.create_worker_price("josias worker", 3000, "usd")
+# price = payment.create_worker_price("josias worker", 3000, "USD")
 # print(price)
 
 # subs = payment.create_subscription("cus_LETyRtzhL2syUv", "price_1KY1EHHPXOp77Gbz2TuhBA8F", "usd")
 # print(subs)
 
-ret = payment.retrieve_customer("cus_LEgIDhOvkZt0fP")
-print(ret)
+# ret = payment.retrieve_customer("cus_LEgIDhOvkZt0fP")
+# print(ret)
+
+dbutil.set_first_id()
+# dbutil.reset_sequence()
