@@ -21,24 +21,11 @@ class App(MDApp):
         menu_items_local = [
             {
                 "viewclass": "OneLineIconListItem",
-                "text": f"local 1",
+                "text": f"{local[3][:25]}",
                 "height": dp(56),
-                "on_release": lambda x=f"#1 2DA CERRADA LAGO BOLSENA": self.set_local(
-                    x
-                ),
-            },
-            {
-                "viewclass": "OneLineIconListItem",
-                "text": f"local 2 (not available)",
-                "height": dp(56),
-                "on_release": lambda x=f"#2": self.set_local(x),
-            },
-            {
-                "viewclass": "OneLineIconListItem",
-                "text": f"local 3 (not available)",
-                "height": dp(56),
-                "on_release": lambda x=f"#3": self.set_local(x),
-            },
+                "on_release": lambda x=f'{local[3]}': self.set_local(local[0])}
+
+            for local in dbutil.get_all("locals")
         ]
 
         self.local_menu = MDDropdownMenu(
@@ -70,25 +57,17 @@ class App(MDApp):
         
 
     ## usar somente o numero e pegar no banco pelo id
-    def set_local(self, text_item):
-        self.kv.ids.drop_local.set_item(text_item)
+    def set_local(self, local_id):
+        self.local_row = dbutil.get_row(local_id, table="locals")
+        self.kv.ids.drop_local.set_item(self.local_row[3][:25])
         self.local_menu.dismiss()
-        print(text_item)
-        if "#1" in text_item:
-            self.specific_location = (
-                "2DA CERRADA LAGO BOLSENA #54, LAGO NORTE DF, MIGUEL HIDALGO, DF. MX"
-            )
-            self.location = "Mexico City, Mexico"
-            self.city = "Mexico City"
-        else:
-            self.specific_location = text_item
+
 
     #### Terminar o codigo abaixo ####
     def set_customer(self, customer_id):
         self.customer_row = dbutil.get_row(customer_id)
         self.kv.ids.drop_customer.set_item(self.customer_row[1])
         self.customer_menu.dismiss()
-        print(self.customer_row)
         
         # set fields
         self.root.ids.customer.text = self.customer_row[1]
@@ -161,7 +140,7 @@ class App(MDApp):
             "phone": self.root.ids.phone.text,
             "email": self.root.ids.email.text,
             "licensor": self.root.ids.licensor.text,
-            "local": self.specific_location,
+            "local": self.local_row[0],
             "onboard": self.root.ids.onboard.text,
             "apartment": self.root.ids.apartment.text,
         }
