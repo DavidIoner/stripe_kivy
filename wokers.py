@@ -16,7 +16,7 @@ class App(MDApp):
         # to avoid bugs
         self.holiday_check = False
         self.customer_row = None
-        self.holiday_check = False
+        self.currency_wage = False
 
         menu_items_customer = [
             {
@@ -45,10 +45,10 @@ class App(MDApp):
 
     def check_wage_currency(self, checkbox, active):
         if active:
-            self.wage_currency = True
+            self.currency_wage = True
             self.root.ids.wage.hint_text = "bi-weekly wage (USD)"
         else:
-            self.wage_currency = False
+            self.currency_wage = False
             self.root.ids.wage.hint_text = "bi-weekly wage (MXN)"
 
     def check_holiday(self, checkbox, active):
@@ -77,12 +77,12 @@ class App(MDApp):
                 christmas = self.root.ids.christmas.text
                 item_dict.update({"christmas": christmas})
 
-            if self.wage_currency == True:
-                wage_currency = "usd"
-                item_dict.update({"wage_currency": wage_currency})
+            if self.currency_wage == True:
+                currency_wage = "usd"
+                item_dict.update({"currency_wage": currency_wage})
             else:
-                wage_currency = "mxn"
-                item_dict.update({"wage_currency": wage_currency})
+                currency_wage = "mxn"
+                item_dict.update({"currency_wage": currency_wage})
 
             item_dict.update({
                 "customer": self.customer_row[1],
@@ -115,17 +115,16 @@ class App(MDApp):
                 worker = gen_pdf.create_worker(worker_row[0], exibith)
                 pdf_list.append(worker)
                 # create a price for that worker
-                try:
+                # try:
 
-                    desk = payment.create_desk_price(worker_row[2], worker_row[5], self.customer_row[10])
-                    print(desk)
-                    dbutil.update_item("desk_id", desk.id, worker_row[0], "workers")
-                    wage = payment.create_worker_price(worker_row[2], worker_row[3], self.customer_row[10])
-                    print(wage)
-                    dbutil.update_item("wage_id", wage.id, worker_row[0], "workers")
-                    # merge the pdfs
-                except:
-                    print(f'error, could not create desk or wage price for {worker_row[2]}')
+                #     desk = payment.create_desk_price(worker_row[2], worker_row[5], self.customer_row[10])
+                #     print(desk)
+                #     dbutil.update_item("desk_id", desk.id, worker_row[0], "workers")
+                #     wage = payment.create_worker_price(worker_row[2], worker_row[3], self.customer_row[10])
+                #     print(wage)
+                #     dbutil.update_item("wage_id", wage.id, worker_row[0], "workers")
+                # except:
+                #     print(f'error, could not create desk or wage price for {worker_row[2]}')
 
         pdf.merge_pdf(pdf_list, self.customer_row[1])
         pdf.delete_temp_files()

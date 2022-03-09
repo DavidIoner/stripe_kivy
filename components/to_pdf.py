@@ -19,10 +19,13 @@ def get_rate(id="MXN-BRL"):
 def monetary(money):
     money = str(money)
     if "." in money:
-        money = money.replace(".", "")
-    if len(money) > 2:
+        money = money.split(".")
+        print(money[1])
+        money = money[0] + "." + money[1][-2:]
+    else:
         money = money[:-2] + "." + money[-2:]
     return money
+
 
 class Report:
     def __init__(self, customer_id):
@@ -54,7 +57,7 @@ class Report:
         local_row = dbutil.get_row(self.customer_row[7], table="locals")
         ###### DEFINE CLAUSE 21 ######
         if self.customer_row[9] != '0' or self.customer_row[9] is not None:
-            clause21_p = f'21. Apartment Rental: Should the licensee elect to pay for the service, 5CRE will provide non-exclusive use of a two-bedroom apartment in {local_row[1]} for ${monetary(self.customer_row[9])} USD per year, payable as one lump sum at signing. 5CRE shall provide cleaning before and after their stay. Bedding, towels, and toiletries can be provided at an extra charge. All bookings are made on a first-come, first-serve basis. The customer is guaranteed three nights per month. Customer may extend their stay, free of charge, or elect to stay multiple times in any one-month period on the condition that it is not already booked by another customer. No stay may exceed ten days. 5CRE retains the right to refund a proportionate share of the annual payment and terminate staying rights for any reason. Included cleaning is limited to reasonable stay wear and tear. Apartment sharing agreement shall expire one year from payment. <br> <br>'
+            clause21_p = f'21. Apartment Rental: Should the licensee elect to pay for the service, 5CRE will provide non-exclusive use of a two-bedroom apartment in {local_row[1]} for ${monetary(self.customer_row[9])} {self.currency} per year, payable as one lump sum at signing. 5CRE shall provide cleaning before and after their stay. Bedding, towels, and toiletries can be provided at an extra charge. All bookings are made on a first-come, first-serve basis. The customer is guaranteed three nights per month. Customer may extend their stay, free of charge, or elect to stay multiple times in any one-month period on the condition that it is not already booked by another customer. No stay may exceed ten days. 5CRE retains the right to refund a proportionate share of the annual payment and terminate staying rights for any reason. Included cleaning is limited to reasonable stay wear and tear. Apartment sharing agreement shall expire one year from payment. <br> <br>'
             vars_dict.update({"clause21_p": clause21_p})
 
 
@@ -112,32 +115,44 @@ class Report:
                 print(holiday_p)      
 
         if worker_row[4] is not None:
-            christmas_p = f'<strong>Christmas Bonus</strong> $ {monetary(worker_row[4])}MXN ($ USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
+            christmas_usd = monetary(float(monetary(worker_row[4])) * self.MXN)
+            christmas_p = f'<strong>Christmas Bonus</strong> ${monetary(worker_row[4])}MXN ($ {christmas_usd} USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
             vars_dict.update({'christmas_p': christmas_p})        
 
         
 
         if self.currency == 'usd':
-            desk_fee_usd = monetary(worker_row[4])
+            desk_fee_usd = monetary(worker_row[5])
             affiliate = "5CRE’s affiliate."
             vars_dict.update({"desk_fee_USD": desk_fee_usd, "affiliate": affiliate})
         elif self.currency == 'mxn':
             ## ver se esta certo
-            desk_fee_usd = float(monetary(worker_row[4])) / self.MXN
+            desk_fee_usd = float(monetary(worker_row[5])) / self.MXN
             desk_fee_usd = f'{desk_fee_usd:.2f}'
             affiliate = "5CRE’s LATAM affiliate."
             vars_dict.update({"desk_fee_USD": desk_fee_usd, "affiliate": affiliate})
 
+        if worker_row[7] == "usd":
+            wage_usd = monetary(worker_row[3])
+            wage = monetary(float(wage_usd) / self.MXN)
+            affiliate_wage = "5CRE’s affiliate."
+            vars_dict.update({"wage_usd": wage_usd, "affiliate_wage": affiliate_wage, "wage": wage, "currency_wage": worker_row[7]})
+        else:
+            wage = monetary(worker_row[3])
+            wage_usd = monetary(float(wage) * self.MXN)
+            affiliate_wage = "5CRE’s LATAM affiliate."
+            vars_dict.update({"wage_usd": wage_usd, "affiliate_wage": affiliate_wage, "wage": wage, "currency_wage": worker_row[7]})
+
             
-        wagex2 = int(worker_row[3]) * 2
+        wagex2 = monetary(worker_row[3] * 2)
 
         vars_dict.update({
             "currency": self.currency,
             "exibith": exibith,
-            "wagex2": monetary(wagex2),
+            "wagex2": wagex2,
             "worker": worker_row[2],
-            "wage": monetary(worker_row[3]), ## deve ter em mxn tambem
-            "desk": monetary(worker_row[4]),   
+            #"wage": monetary(worker_row[3]), ## deve ter em mxn tambem
+            "desk": monetary(worker_row[5]),   
         })
 
         output_name = f'{self.customer_row[1]}_exibith_{exibith}.pdf'

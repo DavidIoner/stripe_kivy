@@ -27,23 +27,15 @@ import components.DButilC as dbutil
 # desk = payment.create_desk_price(worker_row[2], worker_row[5], customer_row[10])
 # print(desk)
 
+mn = 200.3332
 
-
-def handle_monetary_data(money):
+def monetary(money):
     money = str(money)
+    if "." in money:
+        money = money.split(".")
+        print(money[1])
+        money = money[0] + "." + money[1][-2:]
 
-    if len(money) > 2:
-        money = money[:-2] + "." + money[-2:]
     return money
 
-x = 299899
-y = handle_monetary_data(x)
-print(y)
-y = float(y) * 2
-print(y)
-
-#limit the caracters of the string
-def limit_string(string, limit):
-    if len(string) > limit:
-        string = string[:limit]
-    return string
+print(monetary(mn))
