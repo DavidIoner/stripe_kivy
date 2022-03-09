@@ -2,7 +2,6 @@ from kivy.lang import Builder
 from kivy.metrics import dp
 from kivymd.app import MDApp
 from kivymd.uix.menu import MDDropdownMenu
-from PyPDF2 import PdfFileMerger
 import components.to_pdf as pdf
 import components.DButilC as dbutil
 import components.payment as payment
@@ -17,6 +16,7 @@ class App(MDApp):
         # to avoid bugs
         self.holiday_check = False
         self.customer_row = None
+        self.holiday_check = False
 
         menu_items_customer = [
             {
@@ -43,13 +43,22 @@ class App(MDApp):
         self.customer_menu.dismiss()
         ## mostrar a lista dos workers desse customer (pelo menos o nome e a qtd em um menu)
 
+    def check_wage_currency(self, checkbox, active):
+        if active:
+            self.wage_currency = True
+            self.root.ids.wage.hint_text = "bi-weekly wage (USD)"
+        else:
+            self.wage_currency = False
+            self.root.ids.wage.hint_text = "bi-weekly wage (MXN)"
 
     def check_holiday(self, checkbox, active):
         if active:
             self.holiday_check = True
+            self.root.ids.holiday_label.text = "Holiday fee active!"
 
         if not active:
             self.holiday_check = False
+            self.root.ids.holiday_label.text = "Holiday fee deactive!"
 
     def submit(self):
         item_dict = {}
@@ -67,6 +76,13 @@ class App(MDApp):
             else:
                 christmas = self.root.ids.christmas.text
                 item_dict.update({"christmas": christmas})
+
+            if self.wage_currency == True:
+                wage_currency = "usd"
+                item_dict.update({"wage_currency": wage_currency})
+            else:
+                wage_currency = "mxn"
+                item_dict.update({"wage_currency": wage_currency})
 
             item_dict.update({
                 "customer": self.customer_row[1],

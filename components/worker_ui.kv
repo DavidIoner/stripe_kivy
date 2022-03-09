@@ -11,16 +11,16 @@
 
     MDTextField:
         id: wage
-        hint_text: "bi-weekly wage"
+        hint_text: "bi-weekly wage (MXN)"
         pos_hint: {"x": 0.05, "y": 0.8}
         size_hint_x: 0.4
         write_tab: False
         multiline: False
         on_text_validate: app.handle_key()
-
+ 
     MDTextField:
-        id: christmas
-        hint_text: "christmas"
+        id: desk
+        hint_text: "bi-weekly desk fee (USD)"
         pos_hint: {"x": 0.05, "y": 0.7}
         size_hint_x: 0.4
         write_tab: False
@@ -28,8 +28,8 @@
         on_text_validate: app.handle_key()
 
     MDTextField:
-        id: desk
-        hint_text: "bi-weekly desk fee"
+        id: christmas
+        hint_text: "christmas (USD)"
         pos_hint: {"x": 0.05, "y": 0.6}
         size_hint_x: 0.4
         write_tab: False
@@ -40,6 +40,11 @@
         id: holiday_check
         pos_hint: {"x": 0.05, "y": 0.5}
         on_active: app.check_holiday(*args)
+    
+    MDSwitch:
+        id: wage_currency_check
+        pos_hint: {"x": 0.5, "y": 0.8}
+        on_active: app.check_wage_currency(*args)
 
     MDLabel:
         id: holiday_label
@@ -54,7 +59,6 @@
         size_hint: 0.4, 0.1
         on_release: app.customer_menu.open()
 
-    MDList
 
 
     MDRaisedButton:

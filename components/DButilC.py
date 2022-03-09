@@ -19,7 +19,7 @@ def insert_data_customer(item_dict):
 def insert_data_worker(item_dict):
     try:
         cursor.execute(
-            f"INSERT INTO workers (name, customer, wage, christmas, desk, holiday) VALUES ('{item_dict['name']}','{item_dict['customer']}','{item_dict['wage']}', '{item_dict['christmas']}', '{item_dict['desk']}', '{item_dict['holiday']}')"
+            f"INSERT INTO workers (name, customer, wage, christmas, desk, holiday, currency_wage) VALUES ('{item_dict['name']}','{item_dict['customer']}','{item_dict['wage']}', '{item_dict['christmas']}', '{item_dict['desk']}', '{item_dict['holiday']}', '{item_dict['currency_wage']}')"
         )
         db.commit()
         print(f"{item_dict['name']} added to database")

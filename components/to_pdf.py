@@ -136,7 +136,7 @@ class Report:
             "exibith": exibith,
             "wagex2": monetary(wagex2),
             "worker": worker_row[2],
-            "wage": monetary(worker_row[3]),
+            "wage": monetary(worker_row[3]), ## deve ter em mxn tambem
             "desk": monetary(worker_row[4]),   
         })
 
