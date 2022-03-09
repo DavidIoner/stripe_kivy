@@ -41,3 +41,9 @@ y = handle_monetary_data(x)
 print(y)
 y = float(y) * 2
 print(y)
+
+#limit the caracters of the string
+def limit_string(string, limit):
+    if len(string) > limit:
+        string = string[:limit]
+    return string

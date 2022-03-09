@@ -22,7 +22,7 @@ class App(MDApp):
                 "viewclass": "OneLineIconListItem",
                 "text": customer[1],
                 "height": dp(56),
-                "on_release": lambda x=f'{customer[1]}': self.set_customer(customer[0])}
+                "on_release": lambda x=customer[0]: self.set_customer(x)}
             
             for customer in dbutil.get_all()
         ]
@@ -37,7 +37,7 @@ class App(MDApp):
 
     def set_customer(self, customer_id):
         self.customer_row = dbutil.get_row(customer_id)
-        self.customer_id = customer_id
+        self.customer_id = self.customer_row[0]
         self.kv.ids.drop_customer.set_item(self.customer_row[1])
         self.customer_menu.dismiss()
         ## mostrar a lista dos workers desse customer (pelo menos o nome e a qtd em um menu)

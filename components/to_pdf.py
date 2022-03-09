@@ -96,7 +96,6 @@ class Report:
         vars_dict = {}
 
         # variables
-        ############ 
         if worker_row[6] == "1":
             print('holiday actived!')
             ## conferir se eh mxn ou mxnu

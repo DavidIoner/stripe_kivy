@@ -23,7 +23,7 @@ class App(MDApp):
                 "viewclass": "OneLineIconListItem",
                 "text": f"{local[3][:25]}",
                 "height": dp(56),
-                "on_release": lambda x=f'{local[3]}': self.set_local(local[0])}
+                "on_release": lambda x=local[0]: self.set_local(x)}
 
             for local in dbutil.get_all("locals")
         ]
@@ -40,8 +40,8 @@ class App(MDApp):
                 "viewclass": "OneLineIconListItem",
                 "text": customer[1],
                 "height": dp(56),
-                "on_release": lambda x=f'{customer[1]}': self.set_customer(customer[0])}
-            
+                "on_release": lambda x=customer[0]: self.set_customer(x)}
+
             for customer in dbutil.get_all()
         ]
 
@@ -65,6 +65,7 @@ class App(MDApp):
 
     #### Terminar o codigo abaixo ####
     def set_customer(self, customer_id):
+        print(f'customer id: {customer_id}')
         self.customer_row = dbutil.get_row(customer_id)
         self.kv.ids.drop_customer.set_item(self.customer_row[1])
         self.customer_menu.dismiss()
