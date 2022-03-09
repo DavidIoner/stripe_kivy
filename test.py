@@ -4,6 +4,7 @@ import components.DButilC as dbutil
 
 # customer_row = dbutil.get_row(1)
 # print(customer_row)
+# worker_row = dbutil.get_row(1, table="workers")
 
 # source = payment.create_source(customer_row[5], "4242424242424242", 1, 2023, 314, "usd")
 # print(source)
@@ -23,5 +24,20 @@ import components.DButilC as dbutil
 # ret = payment.retrieve_customer("cus_LEgIDhOvkZt0fP")
 # print(ret)
 
-dbutil.set_first_id()
-# dbutil.reset_sequence()
+# desk = payment.create_desk_price(worker_row[2], worker_row[5], customer_row[10])
+# print(desk)
+
+
+
+def handle_monetary_data(money):
+    money = str(money)
+
+    if len(money) > 2:
+        money = money[:-2] + "." + money[-2:]
+    return money
+
+x = 299899
+y = handle_monetary_data(x)
+print(y)
+y = float(y) * 2
+print(y)

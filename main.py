@@ -67,6 +67,8 @@ class App(MDApp):
         )
 
 
+        
+
     ## usar somente o numero e pegar no banco pelo id
     def set_local(self, text_item):
         self.kv.ids.drop_local.set_item(text_item)
@@ -123,7 +125,9 @@ class App(MDApp):
         # else:
         #     self.set_local(0)
         if self.customer_row[10] is not None:
+            ## set checkbox
             pass
+
         
 
     def check_currency(self, checkbox, active):

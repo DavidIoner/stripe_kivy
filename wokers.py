@@ -20,11 +20,11 @@ class App(MDApp):
         menu_items_customer = [
             {
                 "viewclass": "OneLineIconListItem",
-                "text": dbutil.get_item("name", i, "id"),
+                "text": customer[1],
                 "height": dp(56),
-                "on_release": lambda x=f'{i} {dbutil.get_item("name", i, "id")}': self.set_customer(x)}
+                "on_release": lambda x=f'{customer[1]}': self.set_customer(customer[0])}
             
-            for i in range(0, dbutil.get_qtd())
+            for customer in dbutil.get_all()
         ]
 
 
@@ -35,11 +35,11 @@ class App(MDApp):
             width_mult=4,
         )
 
-    def set_customer(self, text_item):
-        self.customer_id = int(text_item[0])
-        self.kv.ids.drop_customer.set_item(text_item)
+    def set_customer(self, customer_id):
+        self.customer_row = dbutil.get_row(customer_id)
+        self.customer_id = customer_id
+        self.kv.ids.drop_customer.set_item(self.customer_row[1])
         self.customer_menu.dismiss()
-        self.customer_row = dbutil.get_row(self.customer_id)
         ## mostrar a lista dos workers desse customer (pelo menos o nome e a qtd em um menu)
 
 
@@ -91,25 +91,24 @@ class App(MDApp):
         pdf_list = [customer]
         # GENERATE WORKER PART #
         exibith = 0
-        for i in range(1, dbutil.get_qtd(table="workers")+1):
-            worker_row = dbutil.get_row(i, table="workers")
-            print(worker_row)
+        for worker in dbutil.get_all("workers"):
+            worker_row = dbutil.get_row(worker[0], table="workers")
             if worker_row[1] == self.customer_row[1]:
                 exibith += 1
                 worker = gen_pdf.create_worker(worker_row[0], exibith)
                 pdf_list.append(worker)
                 # create a price for that worker
-                biwage = float(worker_row[3]) / 2
                 try:
+
                     desk = payment.create_desk_price(worker_row[2], worker_row[5], self.customer_row[10])
                     print(desk)
                     dbutil.update_item("desk_id", desk.id, worker_row[0], "workers")
-                    wage = payment.create_worker_price(worker_row[2], biwage, self.customer_row[10])
+                    wage = payment.create_worker_price(worker_row[2], worker_row[3], self.customer_row[10])
                     print(wage)
                     dbutil.update_item("wage_id", wage.id, worker_row[0], "workers")
                     # merge the pdfs
                 except:
-                    print('error, could not create desk or wage price')
+                    print(f'error, could not create desk or wage price for {worker_row[2]}')
 
         pdf.merge_pdf(pdf_list, self.customer_row[1])
 

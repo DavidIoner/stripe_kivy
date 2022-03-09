@@ -43,6 +43,7 @@ table, tr, td {
 .left-top-container {
   width: 45%;
   float: left;
+  min-height: 240px;
 }
 
 .middle-top-container {
@@ -52,21 +53,21 @@ table, tr, td {
   display: inline;
 }
 
+.right-top-container {
+  width: 38%;
+  float: right;
+  float: top;
+  text-align: left;
+  min-height: 240px;
+  display: inline;
+}
+
 .care-container {
   text-align: right;
   float: top;
   margin-top: -15px;
 }
 
-
-.right-top-container {
-  width: 38%;
-  float: right;
-  float: top;
-  text-align: left;
-  min-height: 247px;
-  display: inline;
-}
 
 .left-container {
   width: 48%;

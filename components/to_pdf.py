@@ -16,6 +16,13 @@ def get_rate(id="MXN-BRL"):
     rate = data[data_id]["bid"]
     return float(rate)
 
+def monetary(money):
+    money = str(money)
+    if "." in money:
+        money = money.replace(".", "")
+    if len(money) > 2:
+        money = money[:-2] + "." + money[-2:]
+    return money
 
 class Report:
     def __init__(self, customer_id):
@@ -50,7 +57,7 @@ class Report:
         if self.customer_row[9] != '0' or self.customer_row[9] is not None:
             # definir o local!!
             city = 'cidade'
-            clause21_p = f'21. Apartment Rental: Should the licensee elect to pay for the service, 5CRE will provide non-exclusive use of a two-bedroom apartment in {city} for ${self.customer_row[9]} USD per year, payable as one lump sum at signing. 5CRE shall provide cleaning before and after their stay. Bedding, towels, and toiletries can be provided at an extra charge. All bookings are made on a first-come, first-serve basis. The customer is guaranteed three nights per month. Customer may extend their stay, free of charge, or elect to stay multiple times in any one-month period on the condition that it is not already booked by another customer. No stay may exceed ten days. 5CRE retains the right to refund a proportionate share of the annual payment and terminate staying rights for any reason. Included cleaning is limited to reasonable stay wear and tear. Apartment sharing agreement shall expire one year from payment. <br> <br>'
+            clause21_p = f'21. Apartment Rental: Should the licensee elect to pay for the service, 5CRE will provide non-exclusive use of a two-bedroom apartment in {city} for ${monetary(self.customer_row[9])} USD per year, payable as one lump sum at signing. 5CRE shall provide cleaning before and after their stay. Bedding, towels, and toiletries can be provided at an extra charge. All bookings are made on a first-come, first-serve basis. The customer is guaranteed three nights per month. Customer may extend their stay, free of charge, or elect to stay multiple times in any one-month period on the condition that it is not already booked by another customer. No stay may exceed ten days. 5CRE retains the right to refund a proportionate share of the annual payment and terminate staying rights for any reason. Included cleaning is limited to reasonable stay wear and tear. Apartment sharing agreement shall expire one year from payment. <br> <br>'
             vars_dict.update({"clause21_p": clause21_p})
 
 
@@ -64,8 +71,8 @@ class Report:
             "phone": self.customer_row[4],
             "email": self.customer_row[5],
             "licensor": self.customer_row[6],
-            "onboard": self.customer_row[8],
-            "apartment": self.customer_row[9],
+            "onboard": monetary(self.customer_row[8]),
+            "apartment": monetary(self.customer_row[9]),
         })
         vars_dict.update({'MXN': f'{self.MXN:.2f}', 'BRL': f'{self.BRL:.2f}', 'COP': f'{self.COP:.2f}', 'MXNU': f'{self.MXNU:.2f}', 'BRLU': f'{self.BRLU:.2f}', 'COPU': f'{self.COPU:.2f}'})
         
@@ -94,41 +101,41 @@ class Report:
             print('holiday actived!')
             ## conferir se eh mxn ou mxnu
             if self.currency == 'usd':
-                holiday = float(worker_row[3]) * 12 * 0.023 * self.MXN
-                holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
+                holiday = float(monetary(worker_row[3])) * 12 * 0.023 * self.MXN
+                holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
                 vars_dict.update({"holiday_p": holiday_p}) 
                 print("currency is USD")  
             if self.currency.upper == 'mxn':
-                holiday = float(worker_row[3]) * 12 * 0.023 
-                holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
+                holiday = float(monetary(worker_row[3])) * 12 * 0.023 
+                holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
                 vars_dict.update({"holiday_p": holiday_p})      
 
         if worker_row[4] is not None:
-            christmas_p = f'<strong>Christmas Bonus</strong> $ MXN ($ USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
+            christmas_p = f'<strong>Christmas Bonus</strong> $ {monetary(worker_row[4])}MXN ($ USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
             vars_dict.update({'christmas_p': christmas_p})        
             print(vars_dict)  
         
 
         if self.currency == 'usd':
-            desk_fee_usd = worker_row[4]
+            desk_fee_usd = monetary(worker_row[4])
             affiliate = "5CRE’s affiliate."
             vars_dict.update({"desk_fee_USD": desk_fee_usd, "affiliate": affiliate})
         elif self.currency == 'mxn':
             ## ver se esta certo
-            desk_fee_usd = worker_row[4] / self.MXN
+            desk_fee_usd = float(monetary(worker_row[4])) / self.MXN
             affiliate = "5CRE’s LATAM affiliate."
             vars_dict.update({"desk_fee_USD": desk_fee_usd, "affiliate": affiliate})
 
             
-        biwage = float(worker_row[3]) / 2
+        wagex2 = int(worker_row[3]) * 2
 
         vars_dict.update({
             "currency": self.currency,
             "exibith": exibith,
-            "biwage": biwage,
+            "wagex2": monetary(wagex2),
             "worker": worker_row[2],
-            "wage": worker_row[3],
-            "desk": worker_row[4],     
+            "wage": monetary(worker_row[3]),
+            "desk": monetary(worker_row[4]),   
         })
 
         output_name = f'{self.customer_row[1]}_exibith_{exibith}.pdf'
