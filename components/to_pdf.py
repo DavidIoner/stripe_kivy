@@ -96,23 +96,25 @@ class Report:
         vars_dict = {}
 
         # variables
-        if worker_row[6] == "1":
+        if "1" in worker_row[6]:
             print('holiday actived!')
             ## conferir se eh mxn ou mxnu
+            print(self.currency)
             if self.currency == 'usd':
                 holiday = float(monetary(worker_row[3])) * 0.276 * self.MXN
                 holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
                 vars_dict.update({"holiday_p": holiday_p}) 
-                print("currency is USD")  
-            if self.currency.upper == 'mxn':
+                print(holiday_p)    
+            if self.currency == 'mxn':
                 holiday = float(monetary(worker_row[3])) * 0.276 
                 holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
-                vars_dict.update({"holiday_p": holiday_p})      
+                vars_dict.update({"holiday_p": holiday_p})
+                print(holiday_p)      
 
         if worker_row[4] is not None:
             christmas_p = f'<strong>Christmas Bonus</strong> $ {monetary(worker_row[4])}MXN ($ USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
             vars_dict.update({'christmas_p': christmas_p})        
-            print(vars_dict)  
+
         
 
         if self.currency == 'usd':
@@ -122,6 +124,7 @@ class Report:
         elif self.currency == 'mxn':
             ## ver se esta certo
             desk_fee_usd = float(monetary(worker_row[4])) / self.MXN
+            desk_fee_usd = f'{desk_fee_usd:.2f}'
             affiliate = "5CRE’s LATAM affiliate."
             vars_dict.update({"desk_fee_USD": desk_fee_usd, "affiliate": affiliate})
 
@@ -152,7 +155,7 @@ class Report:
 
 
 #
-def merge_pdf( pdf_list, output_name):
+def merge_pdf(pdf_list, output_name):
     merger = PdfFileMerger()
 
     for pdf in pdf_list:
@@ -160,3 +163,12 @@ def merge_pdf( pdf_list, output_name):
 
     merger.write(f"components/output/{output_name}.pdf")
     merger.close()
+
+
+def delete_temp_files():
+    for file in os.listdir("./components/output"):
+        if "base" in file:
+            os.remove(os.path.join("./components/output", file))
+        if "exibith" in file:
+            os.remove(os.path.join("./components/output", file))
+        

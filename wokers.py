@@ -8,6 +8,7 @@ import components.DButilC as dbutil
 import components.payment as payment
 
 
+
 class App(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -111,7 +112,7 @@ class App(MDApp):
                     print(f'error, could not create desk or wage price for {worker_row[2]}')
 
         pdf.merge_pdf(pdf_list, self.customer_row[1])
-
+        pdf.delete_temp_files()
         # exluir os pdfs temporarios
         # send email
 

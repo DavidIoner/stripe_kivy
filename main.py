@@ -1,5 +1,3 @@
-from operator import itemgetter
-
 from kivy.lang import Builder
 from kivy.metrics import dp
 from kivymd.app import MDApp
@@ -56,7 +54,6 @@ class App(MDApp):
 
         
 
-    ## usar somente o numero e pegar no banco pelo id
     def set_local(self, local_id):
         self.local_row = dbutil.get_row(local_id, table="locals")
         self.kv.ids.drop_local.set_item(self.local_row[3][:25])
@@ -136,7 +133,7 @@ class App(MDApp):
             "name": self.root.ids.customer.text,
             "currency": self.currency,
             ## ajustar local!
-            "located_at": "localidade",
+            "located_at": self.root.ids.located_at.text,
             "company": self.root.ids.company.text,
             "phone": self.root.ids.phone.text,
             "email": self.root.ids.email.text,
@@ -148,9 +145,6 @@ class App(MDApp):
         try:
             # print(item_dict)
             dbutil.insert_data_customer(item_dict)
-            # customer_id = dbutil.get_last_id()
-            # print(f'customer id: {customer_id}')
-            # self.customer_row = dbutil.get_row(customer_id)
         except:
             print("customer already exists, try update!")
         # add to dropdowns
