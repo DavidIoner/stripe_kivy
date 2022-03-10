@@ -134,7 +134,14 @@ class App(MDApp):
 
     ## criar as subscriptions e charges correspondentes
     def submit_payments(self):
-
+        for worker in dbutil.get_all("workers"):
+            if worker[1] == self.customer_row[1]:
+                desk = payment.create_desk_price(worker[2], worker[5], self.customer_row[10])
+                print(f"desk: {desk.id}")
+                dbutil.update_item("desk_id", desk.id, worker[0], "workers")
+                wage = payment.create_worker_price(worker[2], worker[3], self.customer_row[10])
+                print(f"wage:{wage.id}")
+                dbutil.update_item("wage_id", wage.id, worker[0], "workers")
         ## deve conferir os que ja existem e os que devem ser adicionados
             # isso facilitara para excluir um worker especifico no futuro
         pass

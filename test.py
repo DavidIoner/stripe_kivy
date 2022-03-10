@@ -34,8 +34,10 @@ def monetary(money):
     if "." in money:
         money = money.split(".")
         print(money[1])
-        money = money[0] + "." + money[1][-2:]
-
+        money = money[1][-2:] + "." + money[0]
+        # money = money.replace(".", "")
+    if len(money) > 2:
+        money = money[:-2] + "." + money[-2:]
     return money
 
 print(monetary(mn))

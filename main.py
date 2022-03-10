@@ -169,9 +169,12 @@ class App(MDApp):
             try:
                 source = payment.create_source(self.customer_row[5], card, exp_month, exp_year, cvc)
                 customer = payment.create_customer(self.customer_row[1], self.customer_row[5], source.id)
-                dbutil.update_item("customer_id", customer.id, self.customer_id)
+                dbutil.update_item("customer_id", customer.id, self.customer_id, "id", table="customers")
             except:
                 print("error! (create customer payment)")
+        else:
+            ## delete customer in stripe 
+            print("customer card already exists")
 
 
     def update(self):
