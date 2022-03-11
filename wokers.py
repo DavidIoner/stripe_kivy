@@ -134,17 +134,50 @@ class App(MDApp):
 
     ## criar as subscriptions e charges correspondentes
     def submit_payments(self):
+        if self.customer_row[11] is None:
+            # create a customer
+            customer = payment.create_customer(self.customer_row[1], self.customer_row[5], currency=self.customer_row[10])
+            dbutil.update_item("customer_id", customer.id, self.customer_row[0], table="customers")
+
         for worker in dbutil.get_all("workers"):
             if worker[1] == self.customer_row[1]:
-                desk = payment.create_desk_price(worker[2], worker[5], self.customer_row[10])
-                print(f"desk: {desk.id}")
-                dbutil.update_item("desk_id", desk.id, worker[0], "workers")
-                wage = payment.create_worker_price(worker[2], worker[3], self.customer_row[10])
-                print(f"wage:{wage.id}")
-                dbutil.update_item("wage_id", wage.id, worker[0], "workers")
+                if worker[8] is None:
+                    if self.customer_row[10] == "usd":
+                        desk = payment.create_desk_price(worker[2], worker[5], self.customer_row[10], currency=self.customer_row[10])
+                        print(f"desk: {desk.id}")
+                    elif self.customer_row[10] == "mxn":
+                    try:
+                        dbutil.update_item("desk_id", desk.id, worker[0], table="workers")
+                        worker_row = dbutil.get_row(worker[0], table="workers")
+                        payment.create_subscription(self.customer_row[11], worker_row[8], currency=self.customer_row[10])
+                    except:
+                        print("error updating wage_id or creating subscription for desk")
+                if worker[9] is None:
+                    ## fazer isso se tornar uma fiução e chamar ela aqui
+                    # confere o currency do wage
+                    if self.customer_row[10] == worker[7]:
+                        wage = payment.create_worker_price(worker[2], worker[3], self.customer_row[10], currency=self.customer_row[10])
+                    elif self.customer_row[10] == "usd" and worker[7] == "mxn":
+                        rate = pdf.get_rate('MXN-USD')
+                        amount = worker[3] * int(pdf.monetary(rate, dot=False))
+                        wage = payment.create_worker_price(worker[2], amount, self.customer_row[10], currency=self.customer_row[10])
+                    elif self.customer_row[10] == "mxn" and worker[7] == "usd":
+                        rate = pdf.get_rate('USD-MXN')
+                        amount = worker[3] * int(pdf.monetary(rate, dot=False))
+                        wage = payment.create_worker_price(worker[2], amount, self.customer_row[10], currency=self.customer_row[10])           
+                    print(f"wage:{wage.id}")
+                    payment.create_subscription()
+                    try:
+                        dbutil.update_item("wage_id", wage.id, worker[0], table="workers")
+                        worker_row = dbutil.get_row(worker[0], table="workers")
+                        payment.create_subscription(self.customer_row[11], worker_row[9], currency=self.customer_row[10])
+                    except:
+                        print("error updating wage_id or creating subscription")
         ## deve conferir os que ja existem e os que devem ser adicionados
             # isso facilitara para excluir um worker especifico no futuro
-        pass
+        
+                # create a subscription
+
 
     def update(self):
         pass

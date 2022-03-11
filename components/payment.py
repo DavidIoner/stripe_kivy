@@ -1,19 +1,27 @@
 import stripe
+import datetime
+from datetime import timedelta
 
 
 # create a customer
-def create_customer(name, email, source, currency="usd"):
+def create_customer(name, email, source=None, currency="usd"):
     if currency == "usd":
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
         stripe.api_key = "mxnkey"
-    customer = stripe.Customer.create(
-        email=email,
-        name=name,
-        source=source,
-    )
-
-    return customer
+    if source is None:
+        customer = stripe.Customer.create(
+            name=name,
+            email=email,
+        )
+        return customer
+    else:
+        customer = stripe.Customer.create(
+            email=email,
+            name=name,
+            source=source,
+        )
+        return customer
 
 
 def create_source(email, card_number, exp_month, exp_year, cvc, currency="usd"):
@@ -46,8 +54,8 @@ def create_desk_price(worker_name, amount, currency="usd"):
         unit_amount=amount,
         nickname=f"{worker_name}_desk_price",
         recurring={
-            "interval": "day",
-            "interval_count": 15,
+            "interval": "week",
+            "interval_count": 2,
         },
         product_data={
             "name": f"{worker_name}_desk",
@@ -61,13 +69,15 @@ def create_worker_price(worker_name, amount, currency="usd"):
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
         stripe.api_key = "mxnkey"
+
+    # get the date after 12 months
     return stripe.Price.create(
         currency=currency,
         unit_amount=amount,
         nickname=f"{worker_name}_service_price",
         recurring={
-            "interval": "month",
-            "interval_count": 1,
+            "interval": "week",
+            "interval_count": 2,
         },
         product_data={
             "name": f"{worker_name}_service",
@@ -77,13 +87,16 @@ def create_worker_price(worker_name, amount, currency="usd"):
 
 
 # create a subscription with the worker id
-def create_subscription(customer_id, price, currency="usd"):
+def create_subscription(customer_id, price, cancel=12, currency="usd"):
     if currency == "usd":
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
         stripe.api_key = "mxnkey"
+        
+    cancel_at = datetime.datetime.now() + timedelta(months=cancel)
     return stripe.Subscription.create(
         customer=customer_id,
+        cancel_at=cancel_at,
         items=[
             {
                 "price": price,

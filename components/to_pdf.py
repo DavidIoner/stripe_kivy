@@ -16,12 +16,16 @@ def get_rate(id="MXN-BRL"):
     rate = data[data_id]["bid"]
     return float(rate)
 
-def monetary(money):
+def monetary(money, dot=True):
     money = str(money)
     if "." in money:
         money = money.split(".")
-        print(money[1])
-        money = money[0] + "." + money[1][-2:]
+        if len(money[1]) == 1:
+            money[1] = money[1] + "0"
+        if dot:
+            money = money[0] + "." + money[1][-2:]
+        if dot == False:
+            money = money[0] + money[1][-2:]
     else:
         money = money[:-2] + "." + money[-2:]
     return money

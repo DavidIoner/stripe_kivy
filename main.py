@@ -167,8 +167,12 @@ class App(MDApp):
         ### MAKE TESTS ###
         if self.customer_row[11] is None:
             try:
+                ## if payment method == card
+                ## if card is valid
                 source = payment.create_source(self.customer_row[5], card, exp_month, exp_year, cvc)
-                customer = payment.create_customer(self.customer_row[1], self.customer_row[5], source.id)
+                ## conferir se ja existe o customer no stripe 
+                ## conferir se ja existe source para este customer no stripe # se nao existir, criar (attach)
+                customer = payment.create_customer(self.customer_row[1], self.customer_row[5], source.id, self.customer_row[10])
                 dbutil.update_item("customer_id", customer.id, self.customer_id, "id", table="customers")
             except:
                 print("error! (create customer payment)")
