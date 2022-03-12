@@ -1,14 +1,23 @@
 import stripe
 import datetime
 from datetime import timedelta
+from datetime import datetime
+import json
+
+# get api key from keys.json
+def get_api_key(currency="usd"):
+    with open("components/keys.json") as f:
+        keys = json.load(f)
+    if currency == "usd":
+        return keys["usd"]
+    elif currency == "mxn":
+        return keys["mxn"]
+
 
 
 # create a customer
 def create_customer(name, email, source=None, currency="usd"):
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
+    stripe.api_key = get_api_key(currency)
     if source is None:
         customer = stripe.Customer.create(
             name=name,
@@ -87,16 +96,19 @@ def create_worker_price(worker_name, amount, currency="usd"):
 
 
 # create a subscription with the worker id
-def create_subscription(customer_id, price, cancel=12, currency="usd"):
+def create_subscription(customer_id, price, cancel=48, currency="usd"):
     if currency == "usd":
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
         stripe.api_key = "mxnkey"
-        
-    cancel_at = datetime.datetime.now() + timedelta(months=cancel)
+    end_date = datetime.now() + timedelta(weeks=cancel)
+    end_date = str(end_date)[:10]
+    epoch = datetime(int(end_date[:4]), int(end_date[5:7]), int(end_date[8:10]), 0, 0).timestamp()
+    epoch = int(epoch)
+
     return stripe.Subscription.create(
         customer=customer_id,
-        cancel_at=cancel_at,
+        cancel_at=epoch,
         items=[
             {
                 "price": price,

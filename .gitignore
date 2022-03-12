@@ -154,6 +154,7 @@ cython_debug/
 
 # local files
 components/output/
+components/keys.json
 test.py
 testdb.py
 testpdf.py
