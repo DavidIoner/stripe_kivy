@@ -18,6 +18,7 @@ def get_api_key(currency="usd"):
 # create a customer
 def create_customer(name, email, source=None, currency="usd"):
     stripe.api_key = get_api_key(currency)
+
     if source is None:
         customer = stripe.Customer.create(
             name=name,
@@ -49,6 +50,14 @@ def create_source(email, card_number, exp_month, exp_year, cvc, currency="usd"):
         },
         owner={
             "email": email,}
+    )
+
+def attach_source(customer_id, source, currency="usd"):
+    stripe.api_key = get_api_key(currency)
+    
+    return stripe.Customer.create_source(
+        customer=customer_id,
+        source=source,
     )
 
 

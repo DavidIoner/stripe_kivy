@@ -89,10 +89,6 @@ class App(MDApp):
             self.root.ids.licensor.text = self.customer_row[6]
         else:
             self.root.ids.licensor.text = ""
-        if self.customer_row[8] is not None:
-            self.root.ids.onboard.text = str(self.customer_row[8])
-        else:
-            self.root.ids.onboard.text = ""
         if self.customer_row[9] is not None:
             self.root.ids.apartment.text = str(self.customer_row[9])
         else:
@@ -139,7 +135,6 @@ class App(MDApp):
             "email": self.root.ids.email.text,
             "licensor": self.root.ids.licensor.text,
             "local": self.local_row[0],
-            "onboard": self.root.ids.onboard.text,
             "apartment": self.root.ids.apartment.text,
         }
         try:
@@ -171,13 +166,15 @@ class App(MDApp):
                 if card != "":
                 ## if card is valid          
                     source = payment.create_source(self.customer_row[5], card, exp_month, exp_year, cvc, currency=self.customer_row[10])
-                    ## conferir se ja existe o customer no stripe 
-                    ## conferir se ja existe source para este customer no stripe # se nao existir, criar (attach) 
-                    customer = payment.create_customer(self.customer_row[1], self.customer_row[5], source.id, currency=self.customer_row[10])
+                    # confere se o customer existe e adiciona o source
+                    ## testar
+                    if self.customer_row[11] is None:
+                        customer = payment.create_customer(self.customer_row[1], self.customer_row[5], source.id, currency=self.customer_row[10])
+                    else:
+                        payment.attach_source(self.customer_row[11], source.id)
                 else:
                     print("invoice method is not inmplemented yet! insert card data!")
-                ## nao ta atualizando!!
-                dbutil.update_item("customer_id", customer.id, self.customer_id, "id", table="customers")
+                dbutil.update_item("customer_id", customer.id, self.customer_row[0], table="customers")
             except:
                 print("error! (create customer payment)")
         else:
