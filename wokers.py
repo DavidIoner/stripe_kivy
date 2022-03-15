@@ -132,23 +132,36 @@ class App(MDApp):
 
     ## criar as subscriptions e charges correspondentes
     def submit_payments(self):
-        if self.customer_row[11] is None:
+        if self.customer_row[12] is None:
             # create a customer
             customer = payment.create_customer(self.customer_row[1], self.customer_row[5], currency=self.customer_row[10])
             dbutil.update_item("customer_id", customer.id, self.customer_row[0], table="customers")
 
+
+        ## charges
+        # apartment charge
+        print("creating onboard charge...")
+        onboard = payment.create_charge(self.customer_row[1], self.customer_row[8], self.customer_row[10])
+        print(f"onboard charge id: {onboard.id}")
+
+        
+        ## confere se o worker trabalha ate 4 meses antes do natal
+
+
+
+        # subscriptions and worker prices
         for worker in dbutil.get_all("workers"):
             if worker[1] == self.customer_row[1]:
-
-                # onboard = payment.create_charge()
-
-                
-
+                print("creating apartment charge...")
+                apartment = payment.create_charge(self.customer_row[1], self.customer_row[9], self.customer_row[10])
+                print(f"apartment charge id: {apartment.id}")
 
                 # create a desk price
                 if worker[8] is None:
                     if self.customer_row[10] == "usd":
                         desk = payment.create_desk_price(worker[2], worker[5], self.customer_row[10])
+
+                    ## conferir o uso disso
                     elif self.customer_row[10] == "mxn":
                         rate = pdf.get_rate('MXN-USD')
                         amount = worker[5] * int(pdf.monetary(rate, dot=False))
@@ -157,7 +170,7 @@ class App(MDApp):
                     try:
                         dbutil.update_item("desk_id", desk.id, worker[0], table="workers")
                         worker_row = dbutil.get_row(worker[0], table="workers")
-                        payment.create_subscription(self.customer_row[11], worker_row[8], currency=self.customer_row[10])
+                        payment.create_subscription(self.customer_row[12], worker_row[8], currency=self.customer_row[10])
                     except:
                         print("error updating wage_id or creating subscription for desk")
 
@@ -176,16 +189,18 @@ class App(MDApp):
                         amount = worker[3] * int(pdf.monetary(rate, dot=False))
                         wage = payment.create_worker_price(worker[2], amount, self.customer_row[10])           
                     print(f"wage:{wage.id}")
-                    payment.create_subscription(self.customer_row[11], worker[9], currency=self.customer_row[10])
+                    payment.create_subscription(self.customer_row[12], worker[9], currency=self.customer_row[10])
                    
                     try:
                         dbutil.update_item("wage_id", wage.id, worker[0], table="workers")
                         worker_row = dbutil.get_row(worker[0], table="workers")
-                        payment.create_subscription(self.customer_row[11], worker_row[9], currency=self.customer_row[10])
+                        payment.create_subscription(self.customer_row[12], worker_row[9], currency=self.customer_row[10])
                     except:
                         print("error updating wage_id or creating subscription")
 
-                # confere se o worker trabalha ate 4 meses antes do natal
+
+
+
                 
 
         ## deve conferir os que ja existem e os que devem ser adicionados

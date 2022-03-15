@@ -128,7 +128,7 @@ def create_subscription(customer_id, price, cancel=48, currency="usd"):
 
 
 # create a charge for a customer
-def create_charge(customer_id, amount, source, currency="usd"):
+def create_charge(customer_id, amount, currency="usd"):
     if currency == "usd":
         stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
     elif currency == "mxn":
@@ -136,7 +136,6 @@ def create_charge(customer_id, amount, source, currency="usd"):
     return stripe.Charge.create(
         customer=customer_id,
         amount=amount,
-        source=source,
         currency=currency,
         description="Charge for" + customer_id,
     )

@@ -14,6 +14,7 @@ class App(MDApp):
 
         # to avoid bugs
         self.currency_check = False
+        self.christmas_check = False
         self.customer_id = None
         
         menu_items_local = [
@@ -113,16 +114,30 @@ class App(MDApp):
             self.root.ids.onboard.hint_text = "Onboard (USD)"
             self.root.ids.apartment.hint_text = "Apartment (USD)"
 
+    def check_christmas(self, checkbox, active):
+        if active:
+            self.christmas_check = True
+        if not active:
+            self.christmas_check = False
+
     def submit(self):
         if self.currency_check:
             self.currency = "mxn"
         else:
             self.currency = "usd"
+        
+        if self.christmas_check:
+            christmas = "1"
+            item_dict.update({"christmas": christmas})
+        else:
+            christmas = "0"
+            item_dict.update({"christmas": christmas})
 
         if self.root.ids.onboard.text == "":
             self.root.ids.onboard.text = "0"
         if self.root.ids.apartment.text == "":
             self.root.ids.apartment.text = "0"
+        
 
         # add to database
         item_dict = {
@@ -142,17 +157,6 @@ class App(MDApp):
             dbutil.insert_data_customer(item_dict)
         except:
             print("customer already exists, try update!")
-        # add to dropdowns
-        # try:
-        #     if dbutil.verify_row(self.root.ids.customer.text):
-        #         self.customer_row = dbutil.get_row(self.customer_id)
-
-        #     ### MAKE TESTS ###
-        #     if self.customer_row[12] is None:
-        #         customer = payment.create_customer(self.customer_row[1], self.customer_row[5])
-        #         dbutil.update_item("customer_id", customer.id, self.customer_id)
-        # except:
-        #     print("error!")
 
     def submit_payment_method(self):       
         card = self.root.ids.card_number.text
@@ -160,29 +164,26 @@ class App(MDApp):
         exp_month = self.root.ids.exp_month.text
         exp_year = self.root.ids.exp_year.text
         ### MAKE TESTS ###
-        if self.customer_row[11] is None:
-            try:
-                # card payment method
-                if card != "":
-                ## if card is valid          
-                    source = payment.create_source(self.customer_row[5], card, exp_month, exp_year, cvc, currency=self.customer_row[10])
-                    # confere se o customer existe e adiciona o source
-                    ## testar
-                    if self.customer_row[11] is None:
-                        customer = payment.create_customer(self.customer_row[1], self.customer_row[5], source.id, currency=self.customer_row[10])
-                    else:
-                        payment.attach_source(self.customer_row[11], source.id)
+
+        try:
+            # card payment method
+            if card != "":
+            ## if card is valid          
+                source = payment.create_source(self.customer_row[5], card, exp_month, exp_year, cvc, currency=self.customer_row[10])
+                # confere se o customer existe e adiciona o source
+                ## testar
+                if self.customer_row[12] is None:
+                    customer = payment.create_customer(self.customer_row[1], self.customer_row[5], source.id, currency=self.customer_row[10])
                 else:
-                    print("invoice method is not inmplemented yet! insert card data!")
-                dbutil.update_item("customer_id", customer.id, self.customer_row[0], table="customers")
-            except:
-                print("error! (create customer payment)")
-        else:
-            ## delete customer in stripe 
-            print("customer card already exists")
+                    payment.attach_source(self.customer_row[12], source.id)
+            else:
+                print("invoice method is not inplemented yet! insert card data!")
+            dbutil.update_item("customer_id", customer.id, self.customer_row[0], table="customers")
+        except:
+            print("error! (create customer payment)")
 
 
-    def update(self):
+    def update_customer(self):
         print("this button is not implemented yet")
         pass
 
