@@ -136,6 +136,8 @@ class App(MDApp):
             # create a customer
             customer = payment.create_customer(self.customer_row[1], self.customer_row[5], currency=self.customer_row[10])
             dbutil.update_item("customer_id", customer.id, self.customer_row[0], table="customers")
+        
+
 
 
         ## charges
@@ -151,10 +153,23 @@ class App(MDApp):
 
         # subscriptions and worker prices
         for worker in dbutil.get_all("workers"):
+            # confere a relacao do worker com o customer
             if worker[1] == self.customer_row[1]:
+
+                ## mudar para cada worker (apartment)
                 print("creating apartment charge...")
                 apartment = payment.create_charge(self.customer_row[1], self.customer_row[9], self.customer_row[10])
                 print(f"apartment charge id: {apartment.id}")
+
+                print("creating onboard charge...")
+                onboard = payment.create_charge(self.customer_row[1], self.customer_row[8], self.customer_row[10])
+                print(f"onboard charge id: {onboard.id}")
+                
+                
+                # christmas bonus
+                if self.customer_row[11] == "1":
+                    amount = worker_row[3]
+                    christmas = payment.create_price
 
                 # create a desk price
                 if worker[8] is None:
@@ -180,14 +195,17 @@ class App(MDApp):
                     # confere o currency do wage
                     if self.customer_row[10] == worker[7]:
                         wage = payment.create_worker_price(worker[2], worker[3], currency=self.customer_row[10])
+                        onboard = payment.create_charge(self.customer_id, amount * 2, self.customer_row[10], description=f"onboard {worker[2]}")  
                     elif self.customer_row[10] == "usd" and worker[7] == "mxn":
                         rate = pdf.get_rate('MXN-USD')
                         amount = worker[3] * int(pdf.monetary(rate, dot=False))
                         wage = payment.create_worker_price(worker[2], amount, self.customer_row[10])
+                        onboard = payment.create_charge(self.customer_id, amount * 2, self.customer_row[10], description=f"onboard {worker[2]}")   
                     elif self.customer_row[10] == "mxn" and worker[7] == "usd":
                         rate = pdf.get_rate('USD-MXN')
                         amount = worker[3] * int(pdf.monetary(rate, dot=False))
-                        wage = payment.create_worker_price(worker[2], amount, self.customer_row[10])           
+                        wage = payment.create_worker_price(worker[2], amount, self.customer_row[10])   
+                        onboard = payment.create_charge(self.customer_id, amount * 2, self.customer_row[10], description=f"onboard {worker[2]}")      
                     print(f"wage:{wage.id}")
                     payment.create_subscription(self.customer_row[12], worker[9], currency=self.customer_row[10])
                    

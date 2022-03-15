@@ -35,10 +35,7 @@ def create_customer(name, email, source=None, currency="usd"):
 
 
 def create_source(email, card_number, exp_month, exp_year, cvc, currency="usd"):
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
+    stripe.api_key = get_api_key(currency)
     return stripe.Source.create(
         type='card',
         currency='usd',
@@ -63,10 +60,7 @@ def attach_source(customer_id, source, currency="usd"):
 
 # create a price with the worker id
 def create_desk_price(worker_name, amount, currency="usd"):
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
+    stripe.api_key = get_api_key(currency)
     return stripe.Price.create(
         currency=currency,
         unit_amount=amount,
@@ -83,10 +77,7 @@ def create_desk_price(worker_name, amount, currency="usd"):
 
 
 def create_worker_price(worker_name, amount, currency="usd"):
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
+    stripe.api_key = get_api_key(currency)
 
     # get the date after 12 months
     return stripe.Price.create(
@@ -104,12 +95,29 @@ def create_worker_price(worker_name, amount, currency="usd"):
     )
 
 
+## fazer cobrar so em 1 de dezembro uma vez
+def create_christmas_price(worker_name, amount, currency="usd"):
+    stripe.api_key = get_api_key(currency)
+
+    return stripe.Price.create(
+        currency=currency,
+        unit_amount=amount,
+        nickname=f"{worker_name}_christmas_price",
+        recurring={
+            "interval": "year",
+            "interval_count": 1,
+        },
+        product_data={
+            "name": f"{worker_name}_christmas",
+            "type": "service",
+        },
+    )
+
+
 # create a subscription with the worker id
 def create_subscription(customer_id, price, cancel=48, currency="usd"):
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
+    stripe.api_key = get_api_key(currency)
+
     end_date = datetime.now() + timedelta(weeks=cancel)
     end_date = str(end_date)[:10]
     epoch = datetime(int(end_date[:4]), int(end_date[5:7]), int(end_date[8:10]), 0, 0).timestamp()
@@ -128,16 +136,14 @@ def create_subscription(customer_id, price, cancel=48, currency="usd"):
 
 
 # create a charge for a customer
-def create_charge(customer_id, amount, currency="usd"):
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
+def create_charge(customer_id, amount, currency="usd", description="charge"):
+    stripe.api_key = get_api_key(currency)
+
     return stripe.Charge.create(
         customer=customer_id,
         amount=amount,
         currency=currency,
-        description="Charge for" + customer_id,
+        description=description,
     )
 
 
@@ -145,10 +151,8 @@ def create_charge(customer_id, amount, currency="usd"):
 def create_invoice(
     customer_id, subscription_id, collection_method="send_invoice", currency="usd"
 ):
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
+    stripe.api_key = get_api_key(currency)
+
     return stripe.Invoice.create(
         customer=customer_id,
         subscription=subscription_id,
@@ -159,9 +163,7 @@ def create_invoice(
 
 # retrieve a customer
 def retrieve_customer(customer_id, currency="usd"):
-    if currency == "usd":
-        stripe.api_key = "sk_test_51KRRmAHPXOp77GbzAcFiks47OxjCBvuWHj3DbA9sSb1Du9oYJ3P8cyRrfTz77rHY9UP5MsnpuxxSCMzYMSWpbt37006nouDHA2"
-    elif currency == "mxn":
-        stripe.api_key = "mxnkey"
+    stripe.api_key = get_api_key(currency)
+
     return stripe.Customer.retrieve(customer_id)
 
