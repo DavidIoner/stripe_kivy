@@ -2,9 +2,11 @@ from kivy.lang import Builder
 from kivy.metrics import dp
 from kivymd.app import MDApp
 from kivymd.uix.menu import MDDropdownMenu
+from datetime import datetime
 import components.to_pdf as pdf
 import components.DButilC as dbutil
 import components.payment as payment
+
 
 
 
@@ -38,13 +40,20 @@ class App(MDApp):
 
     def set_customer(self, customer_id):
         self.customer_row = dbutil.get_row(customer_id)
+        #### AJEITAR ISSO AQUI ####
         self.customer_id = self.customer_row[0]
-        self.kv.ids.drop_customer.set_item(self.customer_row[1])
+        self.customer_name = self.customer_row[1]
+        self.customer_email = self.customer_row[5]
+        self.customer_currency = self.customer_row[8]
+        self.customer_christmas = self.customer_row[9]
+        self.customer_stripe_id = self.customer_row[10]
+       
+        self.kv.ids.drop_customer.set_item(self.customer_name)
         self.customer_menu.dismiss()
 
-        if self.customer_row[10] == "usd":
+        if self.customer_currency == "usd":
             self.root.ids.onboard.hint_text = "Onboard (USD)"
-        elif self.customer_row[10] == "mxn":
+        elif self.customer_currency == "mxn":
             self.root.ids.onboard.hint_text = "Onboard (MXN)"
 
         ## mostrar a lista dos workers desse customer (pelo menos o nome e a qtd em um menu)
@@ -76,13 +85,6 @@ class App(MDApp):
                 self.holiday = "0"
                 item_dict.update({"holiday": self.holiday})
 
-            if self.root.ids.christmas.text == 0:
-                christmas = None
-                item_dict.update({"christmas": christmas})
-            else:
-                christmas = self.root.ids.christmas.text
-                item_dict.update({"christmas": christmas})
-
             if self.currency_wage == True:
                 currency_wage = "usd"
                 item_dict.update({"currency_wage": currency_wage})
@@ -93,7 +95,7 @@ class App(MDApp):
 
 
             item_dict.update({
-                "customer": self.customer_row[1],
+                "customer": self.customer_name,
                 "holiday": self.holiday,
                 "name": self.root.ids.worker.text,
                 "wage": self.root.ids.wage.text,
@@ -119,104 +121,117 @@ class App(MDApp):
         exibith = 0
         for worker in dbutil.get_all("workers"):
             worker_row = dbutil.get_row(worker[0], table="workers")
-            if worker_row[1] == self.customer_row[1]:
+            if worker_row[1] == self.customer_name:
                 exibith += 1
                 worker = gen_pdf.create_worker(worker_row[0], exibith)
                 pdf_list.append(worker)
 
 
-        pdf.merge_pdf(pdf_list, self.customer_row[1])
+        pdf.merge_pdf(pdf_list, self.customer_name)
         pdf.delete_temp_files()
         ## send email
 
 
     ## criar as subscriptions e charges correspondentes
     def submit_payments(self):
-        if self.customer_row[12] is None:
+        # confere se o customer tem um stripe_id
+        if self.customer_stripe_id is None:
             # create a customer
-            customer = payment.create_customer(self.customer_row[1], self.customer_row[5], currency=self.customer_row[10])
-            dbutil.update_item("customer_id", customer.id, self.customer_row[0], table="customers")
-        
-
-
-
-        ## charges
-        # apartment charge
-        print("creating onboard charge...")
-        onboard = payment.create_charge(self.customer_row[1], self.customer_row[8], self.customer_row[10])
-        print(f"onboard charge id: {onboard.id}")
-
-        
-        ## confere se o worker trabalha ate 4 meses antes do natal
-
+            customer = payment.create_customer(self.customer_name, self.customer_email, currency=self.customer_currency)
+            dbutil.update_item("customer_id", customer.id, self.customer_id, table="customers")
+         
 
 
         # subscriptions and worker prices
         for worker in dbutil.get_all("workers"):
+            worker_customer = worker[1]
             # confere a relacao do worker com o customer
-            if worker[1] == self.customer_row[1]:
+            if worker_customer== self.customer_name:
+                #### AJEITAR ISSO AQUI ####
+                worker_name = worker[2]
+                worker_wage = worker[3]
+                worker_desk = worker[4]
+                worker_apartment = worker[5]
+                worker_onboard = worker[6]
+                worker_holiday = worker[7]
+                worker_currency_wage = worker[8]
+                worker_desk_id = worker[9]
+                worker_wage_id = worker[10]
+                worker_christmas_id = worker[11]
 
-                ## mudar para cada worker (apartment)
-                print("creating apartment charge...")
-                apartment = payment.create_charge(self.customer_row[1], self.customer_row[9], self.customer_row[10])
-                print(f"apartment charge id: {apartment.id}")
 
-                print("creating onboard charge...")
-                onboard = payment.create_charge(self.customer_row[1], self.customer_row[8], self.customer_row[10])
-                print(f"onboard charge id: {onboard.id}")
+                ## #mudar para cada worker (apartment)
+                if worker_apartment != "0" and worker_apartment != "" and worker_apartment is not None:
+                    print("creating apartment charge...")
+                    apartment = payment.create_charge(self.customer_stripe_id, worker_apartment, self.customer_currency, f"{worker_name}'s apartment")
+                    print(f"apartment charge id: {apartment.id}")
+                if worker_onboard != "0" and worker_onboard != "" and worker_onboard is not None:
+                    print("creating onboard charge...")
+                    onboard = payment.create_charge(self.customer_stripe_id, worker_onboard, self.customer_currency, f"{worker_name}'s onboard")
+                    print(f"onboard charge id: {onboard.id}")
                 
                 
+                ## conferir o currency
                 # christmas bonus
-                if self.customer_row[11] == "1":
-                    amount = worker_row[3]
-                    christmas = payment.create_price
+                if self.customer_christmas == "1":
+                # confere se o worker trabalha ate 4 meses antes do natal
+                    today = datetime.now()
+                    christmas = datetime(today.year, 12, 3, 0, 0)
+                    if today.month > 12:
+                        christmas = datetime(today.year + 1, 12, 3, 0, 0)
+                    now = datetime.now()
+                    months_until_christmas = (christmas - now).days / 30
+                    months_until_christmas = int(months_until_christmas)
+                    if months_until_christmas >= 4:
+                        # christmas_bonus = True
+                        amount = worker_wage + int(worker_wage / 14)
+                        christmas = payment.create_christmas_price(self.customer_stripe_id, worker_name, amount, self.customer_currency)
+                    else:
+                        print("christmas bonus not necessary")
+                        ## create a confirmation for christmas bonus
+                    ## add to database
 
                 # create a desk price
-                if worker[8] is None:
-                    if self.customer_row[10] == "usd":
-                        desk = payment.create_desk_price(worker[2], worker[5], self.customer_row[10])
+                if worker_desk_id is None:
+                    if self.customer_currency == "usd":
+                        desk = payment.create_desk_price(worker_name, worker_desk, self.customer_currency)
 
-                    ## conferir o uso disso
-                    elif self.customer_row[10] == "mxn":
+                    ### conferir o uso disso
+                    if self.customer_currency == "mxn":
                         rate = pdf.get_rate('MXN-USD')
-                        amount = worker[5] * int(pdf.monetary(rate, dot=False))
-                        desk = payment.create_desk_price(worker[2], amount, self.customer_row[10])
+                        worker_desk *= int(pdf.monetary(rate, dot=False))
+                        desk = payment.create_desk_price(worker_name, worker_desk, self.customer_currency)
                     print(f"desk: {desk.id}")
                     try:
                         dbutil.update_item("desk_id", desk.id, worker[0], table="workers")
-                        worker_row = dbutil.get_row(worker[0], table="workers")
-                        payment.create_subscription(self.customer_row[12], worker_row[8], currency=self.customer_row[10])
+                        desk_sub = payment.create_subscription(self.customer_stripe_id, desk.id, currency=self.customer_currency)
+                        print(f"desk subscription id: {desk_sub.id}")
                     except:
                         print("error updating wage_id or creating subscription for desk")
 
                 # create a wage price
-                if worker[9] is None:
-                    ## fazer isso se tornar uma fiução e chamar ela aqui
+                if worker_wage_id is None:
                     # confere o currency do wage
-                    if self.customer_row[10] == worker[7]:
-                        wage = payment.create_worker_price(worker[2], worker[3], currency=self.customer_row[10])
-                        onboard = payment.create_charge(self.customer_id, amount * 2, self.customer_row[10], description=f"onboard {worker[2]}")  
-                    elif self.customer_row[10] == "usd" and worker[7] == "mxn":
+                    if self.customer_currency == worker_currency_wage:
+                        amount = worker_wage
+                    elif self.customer_currency == "usd" and worker_currency_wage == "mxn":
                         rate = pdf.get_rate('MXN-USD')
-                        amount = worker[3] * int(pdf.monetary(rate, dot=False))
-                        wage = payment.create_worker_price(worker[2], amount, self.customer_row[10])
-                        onboard = payment.create_charge(self.customer_id, amount * 2, self.customer_row[10], description=f"onboard {worker[2]}")   
-                    elif self.customer_row[10] == "mxn" and worker[7] == "usd":
+                        amount = worker_wage * int(pdf.monetary(rate, dot=False))
+                    elif self.customer_currency == "mxn" and worker_currency_wage == "usd":
                         rate = pdf.get_rate('USD-MXN')
-                        amount = worker[3] * int(pdf.monetary(rate, dot=False))
-                        wage = payment.create_worker_price(worker[2], amount, self.customer_row[10])   
-                        onboard = payment.create_charge(self.customer_id, amount * 2, self.customer_row[10], description=f"onboard {worker[2]}")      
+                        amount = worker_wage * int(pdf.monetary(rate, dot=False))
+                    security = payment.create_charge(self.customer_stripe_id, amount * 2, self.customer_currency, description=f"security {worker_name}")      
+                    print(f"security charge id: {security.id}")
+                    wage = payment.create_worker_price(worker_name, amount, self.customer_currency)   
                     print(f"wage:{wage.id}")
-                    payment.create_subscription(self.customer_row[12], worker[9], currency=self.customer_row[10])
-                   
                     try:
                         dbutil.update_item("wage_id", wage.id, worker[0], table="workers")
-                        worker_row = dbutil.get_row(worker[0], table="workers")
-                        payment.create_subscription(self.customer_row[12], worker_row[9], currency=self.customer_row[10])
+                        wage_sub = payment.create_subscription(self.customer_stripe_id, wage.id, currency=self.customer_currency)
+                        print(f"wage subscription id: {wage_sub.id}")
                     except:
                         print("error updating wage_id or creating subscription")
 
-
+        print("payments submitted!")
 
 
                 

@@ -43,7 +43,7 @@ table, tr, td {
 .left-top-container {
   width: 45%;
   float: left;
-  min-height: 240px;
+  min-height: 200px;
 }
 
 .middle-top-container {
@@ -58,7 +58,7 @@ table, tr, td {
   float: right;
   float: top;
   text-align: left;
-  min-height: 240px;
+  min-height: 200px;
   display: inline;
 }
 

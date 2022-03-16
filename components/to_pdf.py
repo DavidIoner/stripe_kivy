@@ -108,6 +108,7 @@ class Report:
             ## conferir se eh mxn ou mxnu
             print(self.currency)
             if self.currency == 'usd':
+                ## holiday * 24 * 0.023
                 holiday = float(monetary(worker_row[3])) * 0.276 * self.MXN
                 holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
                 vars_dict.update({"holiday_p": holiday_p}) 

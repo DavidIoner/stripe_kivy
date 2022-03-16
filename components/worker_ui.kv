@@ -21,15 +21,17 @@
     MDTextField:
         id: desk
         hint_text: "bi-weekly desk fee (USD)"
+        text: "20000"
         pos_hint: {"x": 0.05, "y": 0.7}
         size_hint_x: 0.4
         write_tab: False
         multiline: False
         on_text_validate: app.handle_key()
 
+
     MDTextField:
-        id: christmas
-        hint_text: "christmas (USD)"
+        id: onboard
+        hint_text: "Onboard (USD)"
         pos_hint: {"x": 0.05, "y": 0.6}
         size_hint_x: 0.4
         write_tab: False
@@ -37,8 +39,8 @@
         on_text_validate: app.handle_key()
 
     MDTextField:
-        id: onboard
-        hint_text: "Onboard (USD)"
+        id: apartment
+        hint_text: "Apartment (USD)"
         pos_hint: {"x": 0.05, "y": 0.5}
         size_hint_x: 0.4
         write_tab: False

@@ -51,10 +51,10 @@ def create_source(email, card_number, exp_month, exp_year, cvc, currency="usd"):
 
 def attach_source(customer_id, source, currency="usd"):
     stripe.api_key = get_api_key(currency)
-    
+
     return stripe.Customer.create_source(
-        customer=customer_id,
-        source=source,
+        customer_id,
+        source=source
     )
 
 
@@ -96,24 +96,41 @@ def create_worker_price(worker_name, amount, currency="usd"):
 
 
 ## fazer cobrar so em 1 de dezembro uma vez
-def create_christmas_price(worker_name, amount, currency="usd"):
+def create_christmas_price(customer_id, worker_name, amount, currency="usd"):
     stripe.api_key = get_api_key(currency)
 
-    return stripe.Price.create(
+    today = datetime.now()
+    christmas = datetime(today.year, 12, 2)
+    if today.month > 12:
+        christmas = datetime(today.year + 1, 12, 2)
+    days_until_christmas = (christmas - today).days
+    christmas = str(christmas)[:10]
+    end_epoch = datetime(int(christmas[:4]), int(christmas[5:7]), int(christmas[8:10])+3, 0, 0).timestamp()
+    end_epoch = int(end_epoch)
+
+    price = stripe.Price.create(
         currency=currency,
         unit_amount=amount,
         nickname=f"{worker_name}_christmas_price",
         recurring={
-            "interval": "year",
+            "interval": "week",
             "interval_count": 1,
         },
         product_data={
             "name": f"{worker_name}_christmas",
-            "type": "service",
         },
     )
+    
+    subscription = stripe.Subscription.create(
+        customer=customer_id,
+        # parametro errado
+        trial_period_days=days_until_christmas,
+        cancel_at=end_epoch,
+        items=[{"price": price.id}],
+    )
+    return subscription
 
-
+## add details
 # create a subscription with the worker id
 def create_subscription(customer_id, price, cancel=48, currency="usd"):
     stripe.api_key = get_api_key(currency)
