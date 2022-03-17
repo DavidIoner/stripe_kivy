@@ -96,7 +96,7 @@ def create_worker_price(worker_name, amount, currency="usd"):
 
 
 ## fazer cobrar so em 1 de dezembro uma vez
-def create_christmas_price(customer_id, worker_name, amount, currency="usd"):
+def create_christmas_subscription(customer_id, worker_name, amount, currency="usd"):
     stripe.api_key = get_api_key(currency)
 
     today = datetime.now()
@@ -142,6 +142,9 @@ def create_subscription(customer_id, price, cancel=48, currency="usd"):
 
     return stripe.Subscription.create(
         customer=customer_id,
+        # change to start charge in the day 1
+        # trial_period_days=days_until_day_1,
+        # epoch + trial period
         cancel_at=epoch,
         items=[
             {
@@ -176,6 +179,13 @@ def create_invoice(
         collection_method=collection_method,
         currency=currency,
     )
+
+
+def delete_subscription(subscription_id, currency="usd"):
+    stripe.api_key = get_api_key(currency)
+
+    return stripe.Subscription.delete(subscription_id)
+
 
 
 # retrieve a customer

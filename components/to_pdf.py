@@ -38,8 +38,6 @@ class Report:
         self.TEMPLATE_SRC = os.path.join(self.ROOT, 'templates')
         self.DEST_DIR = os.path.join(self.ROOT, 'output')
 
-        self.customer_row = dbutil.get_row(self.customer_id)
-        self.currency = self.customer_row[10]
 
         self.BRL = get_rate('BRL-USD')
         self.MXN = get_rate('MXN-USD')
@@ -54,31 +52,52 @@ class Report:
         template = env.get_template('CRE_contract.html')
         css = os.path.join(self.TEMPLATE_SRC, 'styles.css')
         vars_dict = {}
-        print('setting variables')
-        # variables
+
+
+        # customer variables
+        self.customer_row = dbutil.get_row(self.customer_id)
+        customer_name = self.customer_row[1]
+        customer_company = self.customer_row[2]
+        customer_located_at = self.customer_row[3]
+        customer_phone = self.customer_row[4]
+        customer_email = self.customer_row[5]
+        customer_licensor = self.customer_row[6]
+        customer_local = self.customer_row[7]
+        self.currency = self.customer_row[10]
+        self.customer_christmas = self.customer_row[11]
+        # customer_stripe_id = self.customer_row[12]
 
         ###### DEFINE LOCAL ######
-        local_row = dbutil.get_row(self.customer_row[7], table="locals")
+        local_row = dbutil.get_row(customer_local, table="locals")
+        local_city = local_row[1]
+        local_contry = local_row[2]
+        local_specific = local_row[3]
+
         ###### DEFINE CLAUSE 21 ######
-        if self.customer_row[9] != '0' or self.customer_row[9] is not None:
-            clause21_p = f'21. Apartment Rental: Should the licensee elect to pay for the service, 5CRE will provide non-exclusive use of a two-bedroom apartment in {local_row[1]} for ${monetary(self.customer_row[9])} {self.currency} per year, payable as one lump sum at signing. 5CRE shall provide cleaning before and after their stay. Bedding, towels, and toiletries can be provided at an extra charge. All bookings are made on a first-come, first-serve basis. The customer is guaranteed three nights per month. Customer may extend their stay, free of charge, or elect to stay multiple times in any one-month period on the condition that it is not already booked by another customer. No stay may exceed ten days. 5CRE retains the right to refund a proportionate share of the annual payment and terminate staying rights for any reason. Included cleaning is limited to reasonable stay wear and tear. Apartment sharing agreement shall expire one year from payment. <br> <br>'
+        apartment_price = 0
+        for worker in dbutil.get_all("workers"):
+            worker_customer = worker[1]
+            worker_apartment = worker[5]
+            if worker_customer == customer_name and worker_apartment != 0 and worker_apartment is not None:
+                apartment_price += worker_apartment
+                
+        if apartment_price != 0:
+            clause21_p = f'21. Apartment Rental: Should the licensee elect to pay for the service, 5CRE will provide non-exclusive use of a two-bedroom apartment in {local_city} for ${monetary(apartment_price)} {self.currency} per year, payable as one lump sum at signing. 5CRE shall provide cleaning before and after their stay. Bedding, towels, and toiletries can be provided at an extra charge. All bookings are made on a first-come, first-serve basis. The customer is guaranteed three nights per month. Customer may extend their stay, free of charge, or elect to stay multiple times in any one-month period on the condition that it is not already booked by another customer. No stay may exceed ten days. 5CRE retains the right to refund a proportionate share of the annual payment and terminate staying rights for any reason. Included cleaning is limited to reasonable stay wear and tear. Apartment sharing agreement shall expire one year from payment. <br> <br>'
             vars_dict.update({"clause21_p": clause21_p})
 
 
 
         vars_dict.update({
             "date": datetime.now().strftime("%d/%m/%Y"),
-            "city": local_row[1],
-            "country": local_row[2],
-            "specific_location": local_row[3],
-            "customer": self.customer_row[1],
-            "company": self.customer_row[2],
-            "located_at": self.customer_row[3],
-            "phone": self.customer_row[4],
-            "email": self.customer_row[5],
-            "licensor": self.customer_row[6],
-            "onboard": monetary(self.customer_row[8]),
-            "apartment": monetary(self.customer_row[9]),
+            "city": local_city,
+            "country": local_contry,
+            "specific_location": local_specific,
+            "customer": customer_name,
+            "company": customer_company,
+            "located_at": customer_located_at,
+            "phone": customer_phone,
+            "email": customer_email,
+            "licensor": customer_licensor,
         })
         vars_dict.update({'MXN': f'{self.MXN:.2f}', 'BRL': f'{self.BRL:.2f}', 'COP': f'{self.COP:.2f}', 'MXNU': f'{self.MXNU:.2f}', 'BRLU': f'{self.BRLU:.2f}', 'COPU': f'{self.COPU:.2f}'})
         
@@ -99,51 +118,59 @@ class Report:
         template = env.get_template('CRE_contract_exibith.html')
         css = os.path.join(self.TEMPLATE_SRC, 'styles.css')
         worker_row = dbutil.get_row(worker_id, table="workers")
-        print(worker_row)
         vars_dict = {}
 
         # variables
-        if "1" in worker_row[6]:
+        worker_name = worker_row[2]
+        worker_wage = worker_row[3]
+        worker_desk = worker_row[4]
+        worker_apartment = worker_row[5]
+        worker_onboard = worker_row[6]
+        worker_holiday = worker_row[7]
+        worker_currency_wage = worker_row[8]
+        worker_desk_id = worker_row[9]
+        worker_wage_id = worker_row[10]
+        worker_christmas_id = worker_row[11]
+
+        if "1" in worker_holiday:
             print('holiday actived!')
             ## conferir se eh mxn ou mxnu
-            print(self.currency)
             if self.currency == 'usd':
                 ## holiday * 24 * 0.023
-                holiday = float(monetary(worker_row[3])) * 0.276 * self.MXN
-                holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
+                holiday = float(monetary(worker_wage)) * 0.552 * self.MXN
+                holiday_p = f'<strong>Federal Holiday Fee</strong> ${monetary(holiday)} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
                 vars_dict.update({"holiday_p": holiday_p}) 
-                print(holiday_p)    
             if self.currency == 'mxn':
-                holiday = float(monetary(worker_row[3])) * 0.276 
-                holiday_p = f'<strong>Federal Holiday Fee</strong> ${holiday:.2f} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
-                vars_dict.update({"holiday_p": holiday_p})
-                print(holiday_p)      
+                holiday = float(monetary(worker_wage)) * 0.552 
+                holiday_p = f'<strong>Federal Holiday Fee</strong> ${monetary(holiday)} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
+                vars_dict.update({"holiday_p": holiday_p})     
 
-        if worker_row[4] is not None:
-            christmas_usd = monetary(float(monetary(worker_row[4])) * self.MXN)
-            christmas_p = f'<strong>Christmas Bonus</strong> ${monetary(worker_row[4])}MXN ($ {christmas_usd} USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
+        ## conferir currency wage, se for em usd a logica muda
+        if "1" in self.customer_christmas:
+            amount = worker_wage + monetary(worker_wage / 14, dot=False)
+            christmas_usd = monetary(float(monetary(amount)) * self.MXN)
+            christmas_p = f'<strong>Christmas Bonus</strong> ${monetary(amount)}MXN ($ {christmas_usd} USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
             vars_dict.update({'christmas_p': christmas_p})        
 
         
 
         if self.currency == 'usd':
-            desk_fee_usd = monetary(worker_row[5])
+            desk_fee_usd = monetary(worker_desk)
             affiliate = "5CRE’s affiliate."
             vars_dict.update({"desk_fee_USD": desk_fee_usd, "affiliate": affiliate})
         elif self.currency == 'mxn':
             ## ver se esta certo
-            desk_fee_usd = float(monetary(worker_row[5])) / self.MXN
-            desk_fee_usd = f'{desk_fee_usd:.2f}'
+            desk_fee_usd = monetary(float(monetary(worker_desk)) / self.MXN)
             affiliate = "5CRE’s LATAM affiliate."
             vars_dict.update({"desk_fee_USD": desk_fee_usd, "affiliate": affiliate})
 
-        if worker_row[7] == "usd":
-            wage_usd = monetary(worker_row[3])
+        if worker_currency_wage == "usd":
+            wage_usd = monetary(worker_wage)
             wage = monetary(float(wage_usd) / self.MXN)
             affiliate_wage = "5CRE’s affiliate."
             vars_dict.update({"wage_usd": wage_usd, "affiliate_wage": affiliate_wage, "wage": wage, "currency_wage": worker_row[7]})
         else:
-            wage = monetary(worker_row[3])
+            wage = monetary(worker_wage)
             wage_usd = monetary(float(wage) * self.MXN)
             affiliate_wage = "5CRE’s LATAM affiliate."
             vars_dict.update({"wage_usd": wage_usd, "affiliate_wage": affiliate_wage, "wage": wage, "currency_wage": worker_row[7]})

@@ -9,7 +9,6 @@ import components.payment as payment
 
 
 
-
 class App(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -160,13 +159,11 @@ class App(MDApp):
                 worker_christmas_id = worker[11]
 
 
-                ## #mudar para cada worker (apartment)
+
                 if worker_apartment != "0" and worker_apartment != "" and worker_apartment is not None:
-                    print("creating apartment charge...")
                     apartment = payment.create_charge(self.customer_stripe_id, worker_apartment, self.customer_currency, f"{worker_name}'s apartment")
                     print(f"apartment charge id: {apartment.id}")
                 if worker_onboard != "0" and worker_onboard != "" and worker_onboard is not None:
-                    print("creating onboard charge...")
                     onboard = payment.create_charge(self.customer_stripe_id, worker_onboard, self.customer_currency, f"{worker_name}'s onboard")
                     print(f"onboard charge id: {onboard.id}")
                 
@@ -176,16 +173,18 @@ class App(MDApp):
                 if self.customer_christmas == "1":
                 # confere se o worker trabalha ate 4 meses antes do natal
                     today = datetime.now()
-                    christmas = datetime(today.year, 12, 3, 0, 0)
+                    december = datetime(today.year, 12, 3, 0, 0)
                     if today.month > 12:
-                        christmas = datetime(today.year + 1, 12, 3, 0, 0)
+                        december = datetime(today.year + 1, 12, 3, 0, 0)
                     now = datetime.now()
-                    months_until_christmas = (christmas - now).days / 30
-                    months_until_christmas = int(months_until_christmas)
-                    if months_until_christmas >= 4:
+                    months_until_december = (december - now).days / 30
+                    months_until_december = int(months_until_december)
+                    if months_until_december >= 4:
                         # christmas_bonus = True
                         amount = worker_wage + int(worker_wage / 14)
-                        christmas = payment.create_christmas_price(self.customer_stripe_id, worker_name, amount, self.customer_currency)
+                        christmas_sub = payment.create_christmas_subscription(self.customer_stripe_id, worker_name, amount, self.customer_currency)
+                        dbutil.update_item("christmas_id", christmas_sub.id, worker[0], table="workers")
+                        
                     else:
                         print("christmas bonus not necessary")
                         ## create a confirmation for christmas bonus
@@ -203,8 +202,9 @@ class App(MDApp):
                         desk = payment.create_desk_price(worker_name, worker_desk, self.customer_currency)
                     print(f"desk: {desk.id}")
                     try:
-                        dbutil.update_item("desk_id", desk.id, worker[0], table="workers")
+                        ## save the subscription not the price
                         desk_sub = payment.create_subscription(self.customer_stripe_id, desk.id, currency=self.customer_currency)
+                        dbutil.update_item("desk_id", desk_sub.id, worker[0], table="workers")
                         print(f"desk subscription id: {desk_sub.id}")
                     except:
                         print("error updating wage_id or creating subscription for desk")
@@ -225,8 +225,9 @@ class App(MDApp):
                     wage = payment.create_worker_price(worker_name, amount, self.customer_currency)   
                     print(f"wage:{wage.id}")
                     try:
-                        dbutil.update_item("wage_id", wage.id, worker[0], table="workers")
-                        wage_sub = payment.create_subscription(self.customer_stripe_id, wage.id, currency=self.customer_currency)
+                        # 48 weeks - 4 weeks for security
+                        wage_sub = payment.create_subscription(self.customer_stripe_id, wage.id, cancel=44, currency=self.customer_currency)
+                        dbutil.update_item("wage_id", wage_sub.id, worker[0], table="workers")
                         print(f"wage subscription id: {wage_sub.id}")
                     except:
                         print("error updating wage_id or creating subscription")
