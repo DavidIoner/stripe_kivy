@@ -79,8 +79,9 @@ table, tr, td {
 .right-container {
   width: 48%;
   float: right;
-  right: 0px;
+  right: -20px;
 }
+
 
 .sign-container {
   margin-left: 0.5cm;

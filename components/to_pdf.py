@@ -56,15 +56,15 @@ class Report:
 
         # customer variables
         self.customer_row = dbutil.get_row(self.customer_id)
-        customer_name = self.customer_row[1]
+        self.customer_name = self.customer_row[1]
         customer_company = self.customer_row[2]
         customer_located_at = self.customer_row[3]
         customer_phone = self.customer_row[4]
         customer_email = self.customer_row[5]
         customer_licensor = self.customer_row[6]
         customer_local = self.customer_row[7]
-        self.currency = self.customer_row[10]
-        self.customer_christmas = self.customer_row[11]
+        self.currency = self.customer_row[8]
+        self.customer_christmas = self.customer_row[9]
         # customer_stripe_id = self.customer_row[12]
 
         ###### DEFINE LOCAL ######
@@ -78,7 +78,7 @@ class Report:
         for worker in dbutil.get_all("workers"):
             worker_customer = worker[1]
             worker_apartment = worker[5]
-            if worker_customer == customer_name and worker_apartment != 0 and worker_apartment is not None:
+            if worker_customer == self.customer_name and worker_apartment != 0 and worker_apartment is not None:
                 apartment_price += worker_apartment
                 
         if apartment_price != 0:
@@ -92,7 +92,7 @@ class Report:
             "city": local_city,
             "country": local_contry,
             "specific_location": local_specific,
-            "customer": customer_name,
+            "customer": self.customer_name,
             "company": customer_company,
             "located_at": customer_located_at,
             "phone": customer_phone,
@@ -124,13 +124,11 @@ class Report:
         worker_name = worker_row[2]
         worker_wage = worker_row[3]
         worker_desk = worker_row[4]
-        worker_apartment = worker_row[5]
+        # worker_apartment = worker_row[5]
         worker_onboard = worker_row[6]
         worker_holiday = worker_row[7]
         worker_currency_wage = worker_row[8]
-        worker_desk_id = worker_row[9]
-        worker_wage_id = worker_row[10]
-        worker_christmas_id = worker_row[11]
+
 
         if "1" in worker_holiday:
             print('holiday actived!')
@@ -147,7 +145,7 @@ class Report:
 
         ## conferir currency wage, se for em usd a logica muda
         if "1" in self.customer_christmas:
-            amount = worker_wage + monetary(worker_wage / 14, dot=False)
+            amount = worker_wage + float(monetary(worker_wage / 14, dot=False))
             christmas_usd = monetary(float(monetary(amount)) * self.MXN)
             christmas_p = f'<strong>Christmas Bonus</strong> ${monetary(amount)}MXN ($ {christmas_usd} USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
             vars_dict.update({'christmas_p': christmas_p})        
@@ -168,26 +166,26 @@ class Report:
             wage_usd = monetary(worker_wage)
             wage = monetary(float(wage_usd) / self.MXN)
             affiliate_wage = "5CRE’s affiliate."
-            vars_dict.update({"wage_usd": wage_usd, "affiliate_wage": affiliate_wage, "wage": wage, "currency_wage": worker_row[7]})
+            vars_dict.update({"wage_usd": wage_usd, "affiliate_wage": affiliate_wage, "wage": wage, "currency_wage": worker_currency_wage})
         else:
             wage = monetary(worker_wage)
             wage_usd = monetary(float(wage) * self.MXN)
             affiliate_wage = "5CRE’s LATAM affiliate."
-            vars_dict.update({"wage_usd": wage_usd, "affiliate_wage": affiliate_wage, "wage": wage, "currency_wage": worker_row[7]})
+            vars_dict.update({"wage_usd": wage_usd, "affiliate_wage": affiliate_wage, "wage": wage, "currency_wage": worker_currency_wage})
 
             
-        wagex2 = monetary(worker_row[3] * 2)
+        wagex2 = monetary(worker_wage * 2)
 
         vars_dict.update({
             "currency": self.currency,
             "exibith": exibith,
             "wagex2": wagex2,
-            "worker": worker_row[2],
+            "worker": worker_name,
             #"wage": monetary(worker_row[3]), ## deve ter em mxn tambem
-            "desk": monetary(worker_row[5]),   
+            "desk": monetary(worker_desk),   
         })
 
-        output_name = f'{self.customer_row[1]}_exibith_{exibith}.pdf'
+        output_name = f'{self.customer_name}_exibith_{exibith}.pdf'
         # rendering to html string
         vars_dict['template_src'] = 'file://' + self.TEMPLATE_SRC
         rendered_string = template.render(vars_dict)
