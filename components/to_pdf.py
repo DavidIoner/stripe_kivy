@@ -129,6 +129,15 @@ class Report:
         worker_holiday = worker_row[7]
         worker_currency_wage = worker_row[8]
 
+        if worker_currency_wage == "usd":
+            security = (worker_wage + worker_desk) * 2
+
+        else:
+            wage = worker_wage * get_rate('MXN-USD')
+            security = (wage + worker_desk) * 2
+        ## conferir se esta fora de escopo
+        security = monetary(security)
+        vars_dict.update({"security": security})
 
         if "1" in worker_holiday:
             print('holiday actived!')
@@ -137,7 +146,7 @@ class Report:
                 ## holiday * 24 * 0.023
                 holiday = float(monetary(worker_wage)) * 0.552 * self.MXN
                 holiday_p = f'<strong>Federal Holiday Fee</strong> ${monetary(holiday)} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
-                vars_dict.update({"holiday_p": holiday_p}) 
+                vars_dict.update({"holiday_p": holiday_p})
             if self.currency == 'mxn':
                 holiday = float(monetary(worker_wage)) * 0.552 
                 holiday_p = f'<strong>Federal Holiday Fee</strong> ${monetary(holiday)} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
@@ -181,6 +190,7 @@ class Report:
             "exibith": exibith,
             "wagex2": wagex2,
             "worker": worker_name,
+            "onboard": monetary(worker_onboard),
             #"wage": monetary(worker_row[3]), ## deve ter em mxn tambem
             "desk": monetary(worker_desk),   
         })

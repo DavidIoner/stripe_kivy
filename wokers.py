@@ -163,9 +163,25 @@ class App(MDApp):
                 if worker_apartment != "0" and worker_apartment != "" and worker_apartment is not None:
                     apartment = payment.create_charge(self.customer_stripe_id, worker_apartment, self.customer_currency, f"{worker_name}'s apartment")
                     print(f"apartment charge id: {apartment.id}")
-                if worker_onboard != "0" and worker_onboard != "" and worker_onboard is not None:
-                    onboard = payment.create_charge(self.customer_stripe_id, worker_onboard, self.customer_currency, f"{worker_name}'s onboard")
-                    print(f"onboard charge id: {onboard.id}")
+
+                # create security charge
+                if worker_currency_wage == "usd":
+                    security = (worker_wage + worker_desk) * 2
+                    security = security - worker_onboard
+                else:
+                    wage = worker_wage * pdf.get_rate('MXN-USD')
+                    security = (wage + worker_desk) * 2
+                    security = security - worker_onboard
+                if security == 0:
+                    print(f"no security deposity for {worker_name}")
+                elif security < 0:
+                    print(f"security is negative for {worker_name}: {security}")
+                elif security > 0:
+                    security_charge = payment.create_charge(self.customer_stripe_id, security, self.customer_currency, f"{worker_name}'s security deposit")
+                    print(f"security charge id for {worker_name}: {security_charge.id}")
+
+                
+                
                 
                 
                 ## conferir o currency
@@ -220,8 +236,7 @@ class App(MDApp):
                     elif self.customer_currency == "mxn" and worker_currency_wage == "usd":
                         rate = pdf.get_rate('USD-MXN')
                         amount = worker_wage * int(pdf.monetary(rate, dot=False))
-                    security = payment.create_charge(self.customer_stripe_id, amount * 2, self.customer_currency, description=f"security {worker_name}")      
-                    print(f"security charge id: {security.id}")
+                    
                     wage = payment.create_worker_price(worker_name, amount, self.customer_currency)   
                     print(f"wage:{wage.id}")
                     try:
@@ -232,7 +247,11 @@ class App(MDApp):
                     except:
                         print("error updating wage_id or creating subscription")
 
-        print("payments submitted!")
+        print("payments submitted! \n")
+        # if success:
+        #     print("success!")
+        # else:
+        #     print("failed!")
 
 
                 
