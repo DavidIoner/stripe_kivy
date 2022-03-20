@@ -196,8 +196,10 @@ class App(MDApp):
                     months_until_december = (december - now).days / 30
                     months_until_december = int(months_until_december)
                     if months_until_december >= 4:
-                        # christmas_bonus = True
                         amount = worker_wage + int(worker_wage / 14)
+                        if worker_currency_wage == "usd":
+                            rate = pdf.get_rate('MXN-USD')
+                            amount *= int(pdf.monetary(rate, dot=False))
                         christmas_sub = payment.create_christmas_subscription(self.customer_stripe_id, worker_name, amount, self.customer_currency)
                         dbutil.update_item("christmas_id", christmas_sub.id, worker[0], table="workers")
                         

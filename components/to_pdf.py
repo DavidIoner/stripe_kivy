@@ -154,9 +154,9 @@ class Report:
 
         ## conferir currency wage, se for em usd a logica muda
         if "1" in self.customer_christmas:
-            amount = worker_wage + float(monetary(worker_wage / 14, dot=False))
-            christmas_usd = monetary(float(monetary(amount)) * self.MXN)
-            christmas_p = f'<strong>Christmas Bonus</strong> ${monetary(amount)}MXN ($ {christmas_usd} USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
+            amount = worker_wage + int(worker_wage / 14)
+            christmas_usd = float(monetary(amount)) * self.MXN
+            christmas_p = f'<strong>Christmas Bonus</strong> ${monetary(amount)}MXN ($ {monetary(christmas_usd)} USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
             vars_dict.update({'christmas_p': christmas_p})        
 
         
@@ -183,12 +183,11 @@ class Report:
             vars_dict.update({"wage_usd": wage_usd, "affiliate_wage": affiliate_wage, "wage": wage, "currency_wage": worker_currency_wage})
 
             
-        wagex2 = monetary(worker_wage * 2)
+
 
         vars_dict.update({
             "currency": self.currency,
             "exibith": exibith,
-            "wagex2": wagex2,
             "worker": worker_name,
             "onboard": monetary(worker_onboard),
             #"wage": monetary(worker_row[3]), ## deve ter em mxn tambem
