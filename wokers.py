@@ -46,6 +46,19 @@ class App(MDApp):
         self.customer_currency = self.customer_row[8]
         self.customer_christmas = self.customer_row[9]
         self.customer_stripe_id = self.customer_row[10]
+
+        if self.customer_stripe_id is not None:
+            cus = payment.retrieve_customer(self.customer_stripe_id)
+            if cus.default_source is not None:
+                src = payment.retrieve_source(cus.default_source)
+                self.customer_source_type = src.type
+                print(f"Payment method: {self.customer_source_type}")
+                if self.customer_source_type == "card":
+                    print("4% will be added")
+
+        else:
+            print("this customer has no stripe id!!!")
+            print("Not avaliable to charge")
        
         self.kv.ids.drop_customer.set_item(self.customer_name)
         self.customer_menu.dismiss()
@@ -135,9 +148,8 @@ class App(MDApp):
     def submit_payments(self):
         # confere se o customer tem um stripe_id
         if self.customer_stripe_id is None:
-            # create a customer
-            customer = payment.create_customer(self.customer_name, self.customer_email, currency=self.customer_currency)
-            dbutil.update_item("customer_id", customer.id, self.customer_id, table="customers")
+            print("customer has no stripe id")
+            return
          
 
 
@@ -145,8 +157,7 @@ class App(MDApp):
         for worker in dbutil.get_all("workers"):
             worker_customer = worker[1]
             # confere a relacao do worker com o customer
-            if worker_customer== self.customer_name:
-                #### AJEITAR ISSO AQUI ####
+            if worker_customer == self.customer_name:
                 worker_name = worker[2]
                 worker_wage = worker[3]
                 worker_desk = worker[4]
@@ -161,8 +172,28 @@ class App(MDApp):
 
 
                 if worker_apartment != "0" and worker_apartment != "" and worker_apartment is not None:
-                    apartment = payment.create_charge(self.customer_stripe_id, worker_apartment, self.customer_currency, f"{worker_name}'s apartment")
-                    print(f"apartment charge id: {apartment.id}")
+                    if self.customer_source_type == "card":
+                        worker_apartment = float(worker_apartment) * 1.04
+                        worker_apartment = pdf.monetary(worker_apartment, dot=False)
+                    apartment_charge = payment.create_charge(self.customer_stripe_id, worker_apartment, self.customer_currency, f"{worker_name}'s apartment")
+                    print(f"apartment charge id for {worker_name}: {apartment_charge.id}")
+
+                if "1" in worker_holiday:
+                    ## conferir se eh mxn ou mxnu
+                    if self.currency == 'usd':
+                        ## holiday * 24 * 0.023
+                        holiday = float(pdf.monetary(worker_wage)) * 0.552 * self.MXN
+                        holiday = pdf.monetary(holiday, dot=False)
+
+                    if self.currency == 'mxn':
+                        holiday = float(pdf.monetary(worker_wage)) * 0.552
+                        holiday = pdf.monetary(holiday, dot=False)
+                    if self.customer_source_type == "card":
+                        holiday = float(holiday) * 1.04
+                        holiday = pdf.monetary(holiday, dot=False)
+                    holiday_charge = payment.create_charge(self.customer_stripe_id, holiday, self.customer_currency, f"{worker_name}'s holiday compensation")
+                    print(f"holiday charge id for {worker_name}: {holiday_charge.id}")
+
 
                 # create security charge
                 if worker_currency_wage == "usd":
@@ -177,12 +208,12 @@ class App(MDApp):
                 elif security < 0:
                     print(f"security is negative for {worker_name}: {security}")
                 elif security > 0:
+                    if self.customer_source_type == "card":
+                        security = float(security) * 1.04
+                        security = pdf.monetary(security, dot=False)
                     security_charge = payment.create_charge(self.customer_stripe_id, security, self.customer_currency, f"{worker_name}'s security deposit")
                     print(f"security charge id for {worker_name}: {security_charge.id}")
 
-                
-                
-                
                 
                 ## conferir o currency
                 # christmas bonus
@@ -200,6 +231,9 @@ class App(MDApp):
                         if worker_currency_wage == "usd":
                             rate = pdf.get_rate('MXN-USD')
                             amount *= int(pdf.monetary(rate, dot=False))
+                        if self.customer_source_type == "card":
+                            amount = float(amount) * 1.04
+                            amount = pdf.monetary(amount, dot=False)
                         christmas_sub = payment.create_christmas_subscription(self.customer_stripe_id, worker_name, amount, self.customer_currency)
                         dbutil.update_item("christmas_id", christmas_sub.id, worker[0], table="workers")
                         
@@ -210,22 +244,20 @@ class App(MDApp):
 
                 # create a desk price
                 if worker_desk_id is None:
-                    if self.customer_currency == "usd":
-                        desk = payment.create_desk_price(worker_name, worker_desk, self.customer_currency)
 
                     ### conferir o uso disso
                     if self.customer_currency == "mxn":
                         rate = pdf.get_rate('MXN-USD')
                         worker_desk *= int(pdf.monetary(rate, dot=False))
-                        desk = payment.create_desk_price(worker_name, worker_desk, self.customer_currency)
-                    print(f"desk: {desk.id}")
-                    try:
-                        ## save the subscription not the price
-                        desk_sub = payment.create_subscription(self.customer_stripe_id, desk.id, currency=self.customer_currency)
-                        dbutil.update_item("desk_id", desk_sub.id, worker[0], table="workers")
-                        print(f"desk subscription id: {desk_sub.id}")
-                    except:
-                        print("error updating wage_id or creating subscription for desk")
+                    if self.customer_source_type == "card":
+                        worker_desk = float(worker_desk) * 1.04
+                        worker_desk = pdf.monetary(worker_desk, dot=False)
+                    desk = payment.create_desk_price(worker_name, worker_desk, self.customer_currency)
+                    
+                    desk_sub = payment.create_subscription(self.customer_stripe_id, desk.id, cancel=44, currency=self.customer_currency)
+                    dbutil.update_item("desk_id", desk_sub.id, worker[0], table="workers")
+                    print(f"desk subscription id: {desk_sub.id}")
+
 
                 # create a wage price
                 if worker_wage_id is None:
@@ -239,15 +271,17 @@ class App(MDApp):
                         rate = pdf.get_rate('USD-MXN')
                         amount = worker_wage * int(pdf.monetary(rate, dot=False))
                     
+                    if self.customer_source_type == "card":
+                        amount = float(amount) * 1.04
+                        amount = pdf.monetary(amount, dot=False)
                     wage = payment.create_worker_price(worker_name, amount, self.customer_currency)   
-                    print(f"wage:{wage.id}")
-                    try:
+                    print(f"wage subscription id:{wage.id}")
+
                         # 48 weeks - 4 weeks for security
-                        wage_sub = payment.create_subscription(self.customer_stripe_id, wage.id, cancel=44, currency=self.customer_currency)
-                        dbutil.update_item("wage_id", wage_sub.id, worker[0], table="workers")
-                        print(f"wage subscription id: {wage_sub.id}")
-                    except:
-                        print("error updating wage_id or creating subscription")
+                    wage_sub = payment.create_subscription(self.customer_stripe_id, wage.id, cancel=44, currency=self.customer_currency)
+                    dbutil.update_item("wage_id", wage_sub.id, worker[0], table="workers")
+                    print(f"wage subscription id: {wage_sub.id}")
+
 
         print("payments submitted! \n")
         # if success:

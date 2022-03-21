@@ -194,3 +194,8 @@ def retrieve_customer(customer_id, currency="usd"):
 
     return stripe.Customer.retrieve(customer_id)
 
+def retrieve_source(source_id, currency="usd"):
+    stripe.api_key = get_api_key(currency)
+
+    return stripe.Source.retrieve(source_id)
+

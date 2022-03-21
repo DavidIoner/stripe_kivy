@@ -76,6 +76,7 @@ class App(MDApp):
         self.currency = self.customer_row[8]
         self.christmas = self.customer_row[9]
         self.customer_stripe_id = self.customer_row[10]
+        
 
         
         # set fields
@@ -187,23 +188,23 @@ class App(MDApp):
         exp_year = self.root.ids.exp_year.text
         ### MAKE TESTS ###
 
-        try:
-            # card payment method
-            if card != "":
-            ## if card is valid          
-                source = payment.create_source(self.email, card, exp_month, exp_year, cvc, currency=self.currency)
-                # confere se o customer existe e adiciona o source
-                ## testar
-                if self.customer_stripe_id is None:
-                    customer = payment.create_customer(self.name, self.email, source.id, currency=self.currency)
-                else:
-                    payment.attach_source(self.customer_stripe_id, source.id)
+        
+        # card payment method
+        if card != "":
+        ## if card is valid          
+            source = payment.create_source(self.email, card, exp_month, exp_year, cvc, currency=self.currency)
+            # confere se o customer existe e adiciona o source
+            ## testar
+            if self.customer_stripe_id is None:
+                customer = payment.create_customer(self.customer_name, self.email, source.id, currency=self.currency)
             else:
-                # invoice payment method
-                print("invoice method is not inplemented yet! insert card data!")
-            dbutil.update_item("customer_id", customer.id, self.customer_id, table="customers")
-        except:
-            print("error! (create customer payment)")
+                payment.attach_source(self.customer_stripe_id, source.id)
+        else:
+            # invoice payment method
+            print("invoice method is not inplemented yet! insert card data!")
+        dbutil.update_item("customer_id", customer.id, self.customer_id, table="customers")
+        # except:
+        #     print("error! (create customer payment)")
 
 
     def update_customer(self):
