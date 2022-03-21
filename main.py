@@ -26,13 +26,13 @@ class App(MDApp):
 
             for local in dbutil.get_all("locals")
         ]
-
         self.local_menu = MDDropdownMenu(
             caller=self.kv.ids.drop_local,
             items=menu_items_local,
-            position="center",
+            position="bottom",
             width_mult=4,
         )
+
         
         menu_items_customer = [
             {
@@ -43,8 +43,6 @@ class App(MDApp):
 
             for customer in dbutil.get_all()
         ]
-
-
         self.customer_menu = MDDropdownMenu(
             caller=self.kv.ids.drop_customer,
             items=menu_items_customer,
@@ -67,58 +65,73 @@ class App(MDApp):
         self.customer_row = dbutil.get_row(customer_id)
         self.kv.ids.drop_customer.set_item(self.customer_row[1])
         self.customer_menu.dismiss()
+        self.customer_id = customer_id
+        self.customer_name = self.customer_row[1]
+        self.company = self.customer_row[2]
+        self.located_at = self.customer_row[3]
+        self.phone = self.customer_row[4]
+        self.email = self.customer_row[5]
+        self.licensor = self.customer_row[6]
+        self.local = self.customer_row[7]
+        self.currency = self.customer_row[8]
+        self.christmas = self.customer_row[9]
+        self.customer_stripe_id = self.customer_row[10]
+
         
         # set fields
-        self.root.ids.customer.text = self.customer_row[1]
-        if self.customer_row[2] is not None:
-            self.root.ids.company.text = self.customer_row[2]
+        self.root.ids.customer.text = self.customer_name
+        if self.company is not None:
+            self.root.ids.company.text = self.company
         else:
             self.root.ids.company.text = ""
-        if self.customer_row[3] is not None:
-            self.root.ids.located_at.text = self.customer_row[3]
+        if self.located_at is not None:
+            self.root.ids.located_at.text = self.located_at
         else:
             self.root.ids.located_at.text = ""
-        if self.customer_row[4] is not None:
-            self.root.ids.phone.text = self.customer_row[4]
+        if self.phone is not None:
+            self.root.ids.phone.text = self.phone
         else:
             self.root.ids.phone.text = ""
-        if self.customer_row[5] is not None:
-            self.root.ids.email.text = self.customer_row[5]
+        if self.email is not None:
+            self.root.ids.email.text = self.email
         else:
             self.root.ids.email.text = ""
-        if self.customer_row[6] is not None:
-            self.root.ids.licensor.text = self.customer_row[6]
+        if self.licensor is not None:
+            self.root.ids.licensor.text = self.licensor
         else:
-            self.root.ids.licensor.text = ""
-        if self.customer_row[9] is not None:
-            self.root.ids.apartment.text = str(self.customer_row[9])
-        else:
-            self.root.ids.apartment.text = ""
+            self.root.ids.licensor.text = "Nigel Shamash"
         # if self.customer_row[7] is not None:
         #     self.set_local(self.customer_row[7])
         # else:
         #     self.set_local(0)
-        if self.customer_row[10] is not None:
-            ## set checkbox
-            pass
+        # set checkboxes
+        if self.currency == "mxn":
+            self.root.ids.currency.active = True
+        else:
+            self.root.ids.currency.active = False
+        if self.christmas == "1":
+            self.root.ids.christmas.active = True
+        else:
+            self.root.ids.christmas.active = False
+        
 
         
 
     def check_currency(self, checkbox, active):
         if active:
             self.currency_check = True
-            self.root.ids.onboard.hint_text = "Onboard (MXN)"
-            self.root.ids.apartment.hint_text = "Apartment (MXN)"
+            self.root.ids.currency_label.text = "Currency is MXN!"
         if not active:
             self.currency_check = False
-            self.root.ids.onboard.hint_text = "Onboard (USD)"
-            self.root.ids.apartment.hint_text = "Apartment (USD)"
+            self.root.ids.currency_label.text = "Currency is USD!"
 
     def check_christmas(self, checkbox, active):
         if active:
             self.christmas_check = True
+            self.root.ids.christmas_label.text = "Christmas bonus active!"
         if not active:
             self.christmas_check = False
+            self.root.ids.christmas_label.text = "Christmas bonus deactive!"
 
     def submit(self):
         if self.currency_check:
@@ -128,35 +141,44 @@ class App(MDApp):
         
         if self.christmas_check:
             christmas = "1"
-            item_dict.update({"christmas": christmas})
         else:
             christmas = "0"
-            item_dict.update({"christmas": christmas})
-
-        if self.root.ids.onboard.text == "":
-            self.root.ids.onboard.text = "0"
-        if self.root.ids.apartment.text == "":
-            self.root.ids.apartment.text = "0"
         
 
         # add to database
         item_dict = {
             "name": self.root.ids.customer.text,
             "currency": self.currency,
-            ## ajustar local!
             "located_at": self.root.ids.located_at.text,
             "company": self.root.ids.company.text,
             "phone": self.root.ids.phone.text,
             "email": self.root.ids.email.text,
             "licensor": self.root.ids.licensor.text,
+            "christmas": christmas,
             "local": self.local_row[0],
-            "apartment": self.root.ids.apartment.text,
         }
-        try:
-            # print(item_dict)
-            dbutil.insert_data_customer(item_dict)
-        except:
-            print("customer already exists, try update!")
+
+        dbutil.insert_data_customer(item_dict)
+        # set customer variables
+        self.customer_id = dbutil.get_customer_id(self.root.ids.customer.text)
+        self.set_customer(self.customer_id)
+
+        menu_items_customer = [
+            {
+                "viewclass": "OneLineIconListItem",
+                "text": customer[1],
+                "height": dp(56),
+                "on_release": lambda x=customer[0]: self.set_customer(x)}
+
+            for customer in dbutil.get_all()
+        ]
+        self.customer_menu = MDDropdownMenu(
+            caller=self.kv.ids.drop_customer,
+            items=menu_items_customer,
+            position="bottom",
+            width_mult=4,
+        )
+
 
     def submit_payment_method(self):       
         card = self.root.ids.card_number.text
@@ -169,16 +191,17 @@ class App(MDApp):
             # card payment method
             if card != "":
             ## if card is valid          
-                source = payment.create_source(self.customer_row[5], card, exp_month, exp_year, cvc, currency=self.customer_row[10])
+                source = payment.create_source(self.email, card, exp_month, exp_year, cvc, currency=self.currency)
                 # confere se o customer existe e adiciona o source
                 ## testar
-                if self.customer_row[12] is None:
-                    customer = payment.create_customer(self.customer_row[1], self.customer_row[5], source.id, currency=self.customer_row[10])
+                if self.customer_stripe_id is None:
+                    customer = payment.create_customer(self.name, self.email, source.id, currency=self.currency)
                 else:
-                    payment.attach_source(self.customer_row[12], source.id)
+                    payment.attach_source(self.customer_stripe_id, source.id)
             else:
+                # invoice payment method
                 print("invoice method is not inplemented yet! insert card data!")
-            dbutil.update_item("customer_id", customer.id, self.customer_row[0], table="customers")
+            dbutil.update_item("customer_id", customer.id, self.customer_id, table="customers")
         except:
             print("error! (create customer payment)")
 

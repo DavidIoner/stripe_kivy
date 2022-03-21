@@ -57,15 +57,6 @@
 
 
     MDTextField:
-        id: apartment
-        hint_text: "Apartment (USD)"
-        pos_hint: {"x": 0.55, "y": 0.6}
-        size_hint_x: 0.4
-        write_tab: False
-        multiline: False
-        on_text_validate: app.handle_key()
-
-    MDTextField:
         id: card_number
         hint_text: "Card number"
         pos_hint: {"x": 0.55, "y": 0.4}
@@ -104,7 +95,7 @@
 
     MDDropDownItem:
         id: drop_local
-        pos_hint: {"x": 0.05, "y": 0.25}
+        pos_hint: {"x": 0.55, "y": 0.9}
         text: 'select the location'
         size_hint: 0.4, 0.1
         on_release: app.local_menu.open()
@@ -117,10 +108,28 @@
         on_release: app.customer_menu.open()
 
     MDSwitch:
-        id: currency
-        pos_hint: {"x": 0.47, "y": 0.9}
+        id: christmas
+        pos_hint: {"x": 0.47, "y": 0.8}
+        on_active: app.check_christmas(*args)
 
+    MDLabel:
+        id: christmas_label
+        text: "Christmas bonus deactive!"
+        pos_hint: {"x": 0.55, "y": 0.79}
+        size_hint: 0.4, 0.1   
+
+
+    MDSwitch:
+        id: currency
+        pos_hint: {"x": 0.47, "y": 0.7}
         on_active: app.check_currency(*args)
+    
+    MDLabel:
+        id: currency_label
+        text: "Currency is USD!"
+        pos_hint: {"x": 0.55, "y": 0.69}
+        size_hint: 0.4, 0.1   
+
 
     MDRaisedButton:
         id: btn

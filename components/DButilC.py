@@ -9,7 +9,7 @@ def insert_data_customer(item_dict):
     print(item_dict)
     try:
         cursor.execute(
-            f"INSERT INTO customers (name, company, located_at, phone, email, licensor, local, onboard, apartment, christmas, currency) VALUES ('{item_dict['name']}','{item_dict['company']}','{item_dict['located_at']}', '{item_dict['phone']}', '{item_dict['email']}', '{item_dict['licensor']}', '{item_dict['local']}', '{float(item_dict['onboard'])}', '{float(item_dict['apartment'])}', '{item_dict['christmas']}', '{item_dict['currency']}')"
+            f"INSERT INTO customers (name, company, located_at, phone, email, licensor, local, christmas, currency) VALUES ('{item_dict['name']}','{item_dict['company']}','{item_dict['located_at']}', '{item_dict['phone']}', '{item_dict['email']}', '{item_dict['licensor']}', '{item_dict['local']}', '{item_dict['christmas']}', '{item_dict['currency']}')"
         )
         db.commit()
         print(f"{item_dict['name']} added to database")

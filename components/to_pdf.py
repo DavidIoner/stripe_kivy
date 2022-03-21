@@ -156,7 +156,7 @@ class Report:
         if "1" in self.customer_christmas:
             amount = worker_wage + int(worker_wage / 14)
             christmas_usd = float(monetary(amount)) * self.MXN
-            christmas_p = f'<strong>Christmas Bonus</strong> ${monetary(amount)}MXN ($ {monetary(christmas_usd)} USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
+            christmas_p = f'<strong>Christmas Bonus</strong> ${monetary(amount)} MXN ($ {monetary(christmas_usd)} USD at time of writing, subject to change), payable for all workers who have been working at your organization for 4 or more months. Charged by 5CRE’s LATAM affiliate. Payable On December 1. <br> <br>'
             vars_dict.update({'christmas_p': christmas_p})        
 
         
