@@ -129,12 +129,10 @@ class Report:
         worker_holiday = worker_row[7]
         worker_currency_wage = worker_row[8]
 
-        if worker_currency_wage == "usd":
-            security = (worker_wage + worker_desk) * 2
-
-        else:
-            wage = worker_wage * get_rate('MXN-USD')
-            security = (wage + worker_desk) * 2
+        if worker_currency_wage == "mxn":
+            wage = float(monetary(worker_wage)) * self.MXN
+            wage = int(monetary(wage, dot=False))
+        security = (wage + worker_desk) * 2
         ## conferir se esta fora de escopo
         security = monetary(security)
         vars_dict.update({"security": security})

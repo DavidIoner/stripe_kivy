@@ -19,7 +19,7 @@ def insert_data_customer(item_dict):
 def insert_data_worker(item_dict):
     try:
         cursor.execute(
-            f"INSERT INTO workers (name, customer, wage, christmas, desk, holiday, currency_wage) VALUES ('{item_dict['name']}','{item_dict['customer']}','{item_dict['wage']}', '{item_dict['christmas']}', '{item_dict['desk']}', '{item_dict['holiday']}', '{item_dict['currency_wage']}')"
+            f"INSERT INTO workers (name, customer, wage, desk, holiday, currency_wage) VALUES ('{item_dict['name']}','{item_dict['customer']}','{item_dict['wage']}', '{item_dict['desk']}', '{item_dict['holiday']}', '{item_dict['currency_wage']}')"
         )
         db.commit()
         print(f"{item_dict['name']} added to database")
@@ -91,38 +91,39 @@ def get_last_id(table="customers"):
 
 
 # verify if row exists on database by the "name" column
-def verify_row(name, table="customers"):
-    try:
-        data = cursor.execute(f"SELECT name FROM {table} WHERE name='{name}'")
-        return True
-    except:
-        print(f"{name}, creating new one")
-        return False
+def verify_row(name, customer=None, table="customers"):
+    if customer == None:
+        try:
+            cursor.execute(f"SELECT name FROM {table} WHERE name='{name}'")
+            return True
+        except:
+            print(f"{name}, creating new one")
+            return False
+    else:
+        try:
+            cursor.execute(f"SELECT name, customer FROM {table} WHERE name='{name}'")
+            return True
+        except:
+            return False
 
 
-
-
-def exclude_data(table="customers"):
-    cursor.execute(f"DELETE FROM {table}")
-    db.commit()
 
 
 def delete_row(id, table="customers"):
     cursor.execute(f"DELETE FROM {table} WHERE id={id}")
     db.commit()
 
+def delete_all(table="customers"):
+    if table == "all":
+        cursor.execute("DELETE FROM customers")
+        cursor.execute("DELETE FROM workers")
+    else:
+        cursor.execute(f"DELETE FROM {table}")
+    db.commit()
+
+
 
 # close database connection
 def close_db():
     db.close()
-
-
-
-
-
-
-
-
-
-
 

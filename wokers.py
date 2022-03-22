@@ -47,6 +47,7 @@ class App(MDApp):
         self.customer_christmas = self.customer_row[9]
         self.customer_stripe_id = self.customer_row[10]
 
+        # confere o tipo de pagamento
         if self.customer_stripe_id is not None:
             cus = payment.retrieve_customer(self.customer_stripe_id)
             if cus.default_source is not None:
@@ -88,6 +89,13 @@ class App(MDApp):
             self.root.ids.holiday_label.text = "Holiday fee deactive!"
 
     def submit(self):
+        name = self.root.ids.worker.text
+        
+        for worker in dbutil.get_all("workers"):
+            if worker[2] == name and worker[1] == self.customer_name:
+                print("worker already exists!")
+                return
+
         item_dict = {}
         if self.customer_row is not None:
             if self.holiday_check:
@@ -108,18 +116,16 @@ class App(MDApp):
 
             item_dict.update({
                 "customer": self.customer_name,
-                "holiday": self.holiday,
-                "name": self.root.ids.worker.text,
+                "name": name,
                 "wage": self.root.ids.wage.text,
                 "desk": self.root.ids.desk.text,
                 "onboard": self.root.ids.onboard.text,
+                "holiday": self.holiday,
             })
 
             # add to database
-            try:
-                dbutil.insert_data_worker(item_dict)
-            except:
-                print("worker already exists or the data is invalid")
+            dbutil.insert_data_worker(item_dict)
+
         else:
             print("customer not selected")
         # add to dropdowns
@@ -146,6 +152,7 @@ class App(MDApp):
 
     ## criar as subscriptions e charges correspondentes
     def submit_payments(self):
+        MXN = pdf.get_rate('MXN-USD')
         # confere se o customer tem um stripe_id
         if self.customer_stripe_id is None:
             print("customer has no stripe id")
@@ -157,6 +164,7 @@ class App(MDApp):
         for worker in dbutil.get_all("workers"):
             worker_customer = worker[1]
             # confere a relacao do worker com o customer
+            holiday = 0
             if worker_customer == self.customer_name:
                 worker_name = worker[2]
                 worker_wage = worker[3]
@@ -173,24 +181,22 @@ class App(MDApp):
 
                 if worker_apartment != "0" and worker_apartment != "" and worker_apartment is not None:
                     if self.customer_source_type == "card":
-                        worker_apartment = float(worker_apartment) * 1.04
+                        worker_apartment = float(pdf.monetary(worker_apartment)) * 1.04
                         worker_apartment = pdf.monetary(worker_apartment, dot=False)
                     apartment_charge = payment.create_charge(self.customer_stripe_id, worker_apartment, self.customer_currency, f"{worker_name}'s apartment")
                     print(f"apartment charge id for {worker_name}: {apartment_charge.id}")
 
                 if "1" in worker_holiday:
                     ## conferir se eh mxn ou mxnu
-                    if self.currency == 'usd':
-                        ## holiday * 24 * 0.023
-                        holiday = float(pdf.monetary(worker_wage)) * 0.552 * self.MXN
-                        holiday = pdf.monetary(holiday, dot=False)
-
-                    if self.currency == 'mxn':
+                    if self.customer_currency == 'usd':
+                        holiday = float(pdf.monetary(worker_wage)) * 0.552 * MXN
+                    if self.customer_currency == 'mxn':
                         holiday = float(pdf.monetary(worker_wage)) * 0.552
-                        holiday = pdf.monetary(holiday, dot=False)
+                    holiday = int(pdf.monetary(holiday, dot=False))
+
                     if self.customer_source_type == "card":
-                        holiday = float(holiday) * 1.04
-                        holiday = pdf.monetary(holiday, dot=False)
+                        holiday = float(pdf.monetary(holiday)) * 1.04
+                        holiday = int(pdf.monetary(holiday, dot=False))
                     holiday_charge = payment.create_charge(self.customer_stripe_id, holiday, self.customer_currency, f"{worker_name}'s holiday compensation")
                     print(f"holiday charge id for {worker_name}: {holiday_charge.id}")
 
@@ -198,10 +204,11 @@ class App(MDApp):
                 # create security charge
                 if worker_currency_wage == "usd":
                     security = (worker_wage + worker_desk) * 2
-                    security = security - worker_onboard
-                else:
-                    wage = worker_wage * pdf.get_rate('MXN-USD')
+                if worker_currency_wage == "mxn":
+                    wage = float(pdf.monetary(worker_wage)) * MXN
+                    wage = int(pdf.monetary(wage, dot=False))
                     security = (wage + worker_desk) * 2
+                if worker_onboard is not None:
                     security = security - worker_onboard
                 if security == 0:
                     print(f"no security deposity for {worker_name}")
@@ -209,8 +216,8 @@ class App(MDApp):
                     print(f"security is negative for {worker_name}: {security}")
                 elif security > 0:
                     if self.customer_source_type == "card":
-                        security = float(security) * 1.04
-                        security = pdf.monetary(security, dot=False)
+                        security = float(pdf.monetary(security)) * 1.04
+                        security = int(pdf.monetary(security, dot=False))
                     security_charge = payment.create_charge(self.customer_stripe_id, security, self.customer_currency, f"{worker_name}'s security deposit")
                     print(f"security charge id for {worker_name}: {security_charge.id}")
 
@@ -227,14 +234,13 @@ class App(MDApp):
                     months_until_december = (december - now).days / 30
                     months_until_december = int(months_until_december)
                     if months_until_december >= 4:
-                        amount = worker_wage + int(worker_wage / 14)
-                        if worker_currency_wage == "usd":
-                            rate = pdf.get_rate('MXN-USD')
-                            amount *= int(pdf.monetary(rate, dot=False))
+                        christmas_amount = worker_wage + int(worker_wage / 14)
+                        if worker_currency_wage == "usd":        
+                            christmas_amount = float(pdf.monetary(christmas_amount)) * MXN
                         if self.customer_source_type == "card":
-                            amount = float(amount) * 1.04
-                            amount = pdf.monetary(amount, dot=False)
-                        christmas_sub = payment.create_christmas_subscription(self.customer_stripe_id, worker_name, amount, self.customer_currency)
+                            christmas_amount = float(pdf.monetary(christmas_amount)) * 1.04
+                        christmas_amount = int(pdf.monetary(christmas_amount, dot=False))
+                        christmas_sub = payment.create_christmas_subscription(self.customer_stripe_id, worker_name, christmas_amount, self.customer_currency)
                         dbutil.update_item("christmas_id", christmas_sub.id, worker[0], table="workers")
                         
                     else:
@@ -247,14 +253,13 @@ class App(MDApp):
 
                     ### conferir o uso disso
                     if self.customer_currency == "mxn":
-                        rate = pdf.get_rate('MXN-USD')
-                        worker_desk *= int(pdf.monetary(rate, dot=False))
+                        worker_desk = float(pdf.monetary(worker_desk)) * MXN
                     if self.customer_source_type == "card":
-                        worker_desk = float(worker_desk) * 1.04
-                        worker_desk = pdf.monetary(worker_desk, dot=False)
+                        worker_desk = float(pdf.monetary(worker_desk)) * 1.04
+                    worker_desk = int(pdf.monetary(worker_desk, dot=False))
                     desk = payment.create_desk_price(worker_name, worker_desk, self.customer_currency)
                     
-                    desk_sub = payment.create_subscription(self.customer_stripe_id, desk.id, cancel=44, currency=self.customer_currency)
+                    desk_sub = payment.create_subscription(self.customer_stripe_id, desk.id, cancel=44, currency=self.customer_currency, description=f"{worker_name}'s desk subscription")
                     dbutil.update_item("desk_id", desk_sub.id, worker[0], table="workers")
                     print(f"desk subscription id: {desk_sub.id}")
 
@@ -263,22 +268,21 @@ class App(MDApp):
                 if worker_wage_id is None:
                     # confere o currency do wage
                     if self.customer_currency == worker_currency_wage:
-                        amount = worker_wage
+                        wage_amount = worker_wage
                     elif self.customer_currency == "usd" and worker_currency_wage == "mxn":
-                        rate = pdf.get_rate('MXN-USD')
-                        amount = worker_wage * int(pdf.monetary(rate, dot=False))
+                        wage_amount = float(pdf.monetary(worker_wage)) * MXN
                     elif self.customer_currency == "mxn" and worker_currency_wage == "usd":
                         rate = pdf.get_rate('USD-MXN')
-                        amount = worker_wage * int(pdf.monetary(rate, dot=False))
-                    
+                        wage_amount = float(pdf.monetary(worker_wage)) * rate
+       
                     if self.customer_source_type == "card":
-                        amount = float(amount) * 1.04
-                        amount = pdf.monetary(amount, dot=False)
-                    wage = payment.create_worker_price(worker_name, amount, self.customer_currency)   
+                        wage_amount = float(wage_amount) * 1.04
+                    wage_amount = int(pdf.monetary(wage_amount, dot=False))
+                    wage = payment.create_worker_price(worker_name, wage_amount, self.customer_currency)   
                     print(f"wage subscription id:{wage.id}")
 
                         # 48 weeks - 4 weeks for security
-                    wage_sub = payment.create_subscription(self.customer_stripe_id, wage.id, cancel=44, currency=self.customer_currency)
+                    wage_sub = payment.create_subscription(self.customer_stripe_id, wage.id, cancel=44, currency=self.customer_currency, description=f"{worker_name}'s wage")
                     dbutil.update_item("wage_id", wage_sub.id, worker[0], table="workers")
                     print(f"wage subscription id: {wage_sub.id}")
 

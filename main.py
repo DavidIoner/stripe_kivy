@@ -16,6 +16,8 @@ class App(MDApp):
         self.currency_check = False
         self.christmas_check = False
         self.customer_id = None
+        self.local_row = dbutil.get_row(1, table="locals")
+
         
         menu_items_local = [
             {
@@ -101,11 +103,6 @@ class App(MDApp):
             self.root.ids.licensor.text = self.licensor
         else:
             self.root.ids.licensor.text = "Nigel Shamash"
-        # if self.customer_row[7] is not None:
-        #     self.set_local(self.customer_row[7])
-        # else:
-        #     self.set_local(0)
-        # set checkboxes
         if self.currency == "mxn":
             self.root.ids.currency.active = True
         else:
@@ -135,6 +132,12 @@ class App(MDApp):
             self.root.ids.christmas_label.text = "Christmas bonus deactive!"
 
     def submit(self):
+        name = self.root.ids.customer.text
+        for customer in dbutil.get_all("customers"):
+            if customer[1] == name:
+                print("customer already exists!")
+                return
+                
         if self.currency_check:
             self.currency = "mxn"
         else:
@@ -161,7 +164,7 @@ class App(MDApp):
 
         dbutil.insert_data_customer(item_dict)
         # set customer variables
-        self.customer_id = dbutil.get_customer_id(self.root.ids.customer.text)
+        self.customer_id = dbutil.get_last_id()
         self.set_customer(self.customer_id)
 
         menu_items_customer = [
@@ -191,7 +194,8 @@ class App(MDApp):
         
         # card payment method
         if card != "":
-        ## if card is valid          
+        ## if card is valid  
+            exp_month = int(exp_month)  
             source = payment.create_source(self.email, card, exp_month, exp_year, cvc, currency=self.currency)
             # confere se o customer existe e adiciona o source
             ## testar

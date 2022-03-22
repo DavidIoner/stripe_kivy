@@ -132,7 +132,7 @@ def create_christmas_subscription(customer_id, worker_name, amount, currency="us
 
 ## add details
 # create a subscription with the worker id
-def create_subscription(customer_id, price, cancel=48, currency="usd"):
+def create_subscription(customer_id, price, cancel=48, currency="usd", description="subscription"):
     stripe.api_key = get_api_key(currency)
 
     end_date = datetime.now() + timedelta(weeks=cancel)
@@ -142,10 +142,11 @@ def create_subscription(customer_id, price, cancel=48, currency="usd"):
 
     return stripe.Subscription.create(
         customer=customer_id,
-        # change to start charge in the day 1
-        # trial_period_days=days_until_day_1,
-        # epoch + trial period
+        ## change to start charge in the day 1
+        ## trial_period_days=days_until_day_1,
+        ## epoch + trial period
         cancel_at=epoch,
+        metadata={"description": description},
         items=[
             {
                 "price": price,
