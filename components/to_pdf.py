@@ -216,6 +216,8 @@ def merge_pdf(pdf_list, output_name):
     merger.write(f"components/output/{output_name}.pdf")
     merger.close()
 
+    return f"components/output/{output_name}.pdf"
+
 
 def delete_temp_files():
     for file in os.listdir("./components/output"):

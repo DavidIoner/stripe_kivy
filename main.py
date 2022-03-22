@@ -190,25 +190,22 @@ class App(MDApp):
         exp_month = self.root.ids.exp_month.text
         exp_year = self.root.ids.exp_year.text
         ### MAKE TESTS ###
-
+        if card == "" or cvc == "" or exp_month == "" or exp_year == "":
+            print("Please fill all fields!")
+            return
         
-        # card payment method
-        if card != "":
         ## if card is valid  
-            exp_month = int(exp_month)  
-            source = payment.create_source(self.email, card, exp_month, exp_year, cvc, currency=self.currency)
-            # confere se o customer existe e adiciona o source
-            ## testar
-            if self.customer_stripe_id is None:
-                customer = payment.create_customer(self.customer_name, self.email, source.id, currency=self.currency)
-            else:
-                payment.attach_source(self.customer_stripe_id, source.id)
+        exp_month = int(exp_month)  
+        source = payment.create_source(self.email, card, exp_month, exp_year, cvc, currency=self.currency)
+        # confere se o customer existe e adiciona o source
+        ## testar
+        if self.customer_stripe_id is None:
+            customer = payment.create_customer(self.customer_name, self.email, source.id, currency=self.currency)
         else:
-            # invoice payment method
-            print("invoice method is not inplemented yet! insert card data!")
+            payment.attach_source(self.customer_stripe_id, source.id)
+
         dbutil.update_item("customer_id", customer.id, self.customer_id, table="customers")
-        # except:
-        #     print("error! (create customer payment)")
+
 
 
     def update_customer(self):

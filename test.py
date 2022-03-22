@@ -3,7 +3,7 @@ from datetime import datetime
 import components.to_pdf as pdf
 import stripe
 
-MXN = pdf.get_rate('MXN-USD')
-p = int(pdf.monetary(MXN, dot=False))
-print(MXN)
-print(p)
+# get the full path with os
+import components.send_pdf as send_pdf
+
+send_pdf.send_email('/home/joberscreisom/projects/stripe_kivy/components/output/namee.pdf', 'davidhioner@gmail.com')

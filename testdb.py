@@ -7,5 +7,5 @@ import components.payment as payment
 import components.DButilC as dbutil
 
 # dbutil.delete_all("all")
-dbutil.reset_sequence("customers")
+dbutil.delete_all("all")
 

@@ -6,6 +6,7 @@ from datetime import datetime
 import components.to_pdf as pdf
 import components.DButilC as dbutil
 import components.payment as payment
+import components.send_pdf as send_pdf
 
 
 
@@ -120,6 +121,7 @@ class App(MDApp):
                 "wage": self.root.ids.wage.text,
                 "desk": self.root.ids.desk.text,
                 "onboard": self.root.ids.onboard.text,
+                "apartment": self.root.ids.apartment.text,
                 "holiday": self.holiday,
             })
 
@@ -147,7 +149,7 @@ class App(MDApp):
 
         pdf.merge_pdf(pdf_list, self.customer_name)
         pdf.delete_temp_files()
-        ## send email
+        # send_pdf.send_email(file, to='davidhioner@gmail.com')
 
 
     ## criar as subscriptions e charges correspondentes

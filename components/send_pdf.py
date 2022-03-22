@@ -10,7 +10,7 @@ def send_email(attachment, to='Nigel@NSNYRE.com'):
     host = "smtp.gmail.com"
     port = '587'
     login = '5CRE.contracts@gmail.com'
-    password = ''
+    password = 'nigel5CRE'
 
     server = smtplib.SMTP(host, port)
     server.ehlo()
@@ -35,6 +35,8 @@ def send_email(attachment, to='Nigel@NSNYRE.com'):
     mail_msg['Subject'] = f'{name} contract'
     mail_msg.attach(MIMEText(body, 'html'))
 
+    # get full path to attachment
+    
     attach = open(attachment, 'rb')
 
     att = MIMEBase('application', 'octet-stream')
