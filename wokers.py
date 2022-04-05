@@ -7,7 +7,15 @@ import components.to_pdf as pdf
 import components.DButilC as dbutil
 import components.payment as payment
 import components.send_pdf as send_pdf
+import tkinter as tk
+from tkinter import filedialog
+from kivymd.uix.button import MDFloatingActionButtonSpeedDial
+import json
 
+def askdirectory():
+    root = tk.Tk()
+    root.withdraw()
+    return filedialog.askdirectory()
 
 
 class App(MDApp):
@@ -19,6 +27,16 @@ class App(MDApp):
         self.holiday_check = False
         self.customer_row = None
         self.currency_wage = False
+
+        self.data = {
+            "output folder": "components/icons/outputfolder.png",
+        }
+
+        
+        speed_dial = MDFloatingActionButtonSpeedDial()
+        speed_dial.data = self.data
+        speed_dial.callback = self.callback
+        self.kv.add_widget(speed_dial)
 
         menu_items_customer = [
             {
@@ -71,6 +89,17 @@ class App(MDApp):
             self.root.ids.onboard.hint_text = "Onboard (MXN)"
 
         ## mostrar a lista dos workers desse customer (pelo menos o nome e a qtd em um menu)
+    def callback(self, instance):
+        if instance.icon == "components/icons/outputfolder.png":
+            directory = askdirectory()
+            # open settings.json and write the new directory
+            with open("components/settings.json", "r") as f:
+                settings = json.load(f)
+                settings["output_folder"] = directory
+            with open("components/settings.json", "w") as f:
+                json.dump(settings, f)
+            
+            print(directory)
 
     def check_wage_currency(self, checkbox, active):
         if active:
