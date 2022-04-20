@@ -95,6 +95,7 @@ class App(MDApp):
             # open settings.json and write the new directory
             with open("components/settings.json", "r") as f:
                 settings = json.load(f)
+                print(settings)
                 settings["output_folder"] = directory
             with open("components/settings.json", "w") as f:
                 json.dump(settings, f)
@@ -176,9 +177,9 @@ class App(MDApp):
                 pdf_list.append(worker)
 
 
-        pdf.merge_pdf(pdf_list, self.customer_name)
+        file = pdf.merge_pdf(pdf_list, self.customer_name)
         pdf.delete_temp_files()
-        # send_pdf.send_email(file, to='davidhioner@gmail.com')
+        send_pdf.send_email(file)
 
 
     ## criar as subscriptions e charges correspondentes
@@ -189,7 +190,8 @@ class App(MDApp):
             print("customer has no stripe id")
             return
          
-
+        total_charge = 0
+        charges = {}
 
         # subscriptions and worker prices
         for worker in dbutil.get_all("workers"):
@@ -214,8 +216,11 @@ class App(MDApp):
                     if self.customer_source_type == "card":
                         worker_apartment = float(pdf.monetary(worker_apartment)) * 1.04
                         worker_apartment = pdf.monetary(worker_apartment, dot=False)
-                    apartment_charge = payment.create_charge(self.customer_stripe_id, worker_apartment, self.customer_currency, f"{worker_name}'s apartment")
-                    print(f"apartment charge id for {worker_name}: {apartment_charge.id}")
+                    total_charge += int(worker_apartment)
+                    charges.append(f"{worker_name} apartment = {pdf.monetary(worker_apartment)}")
+                    charges.update({f"{worker_name} apartment": f"{pdf.monetary(worker_apartment)}"})
+                    #apartment_charge = payment.create_charge(self.customer_stripe_id, worker_apartment, self.customer_currency, f"{worker_name}'s apartment")
+                    #print(f"apartment charge id for {worker_name}: {apartment_charge.id}")
 
                 if "1" in worker_holiday:
                     ## conferir se eh mxn ou mxnu
@@ -228,8 +233,10 @@ class App(MDApp):
                     if self.customer_source_type == "card":
                         holiday = float(pdf.monetary(holiday)) * 1.04
                         holiday = int(pdf.monetary(holiday, dot=False))
-                    holiday_charge = payment.create_charge(self.customer_stripe_id, holiday, self.customer_currency, f"{worker_name}'s holiday compensation")
-                    print(f"holiday charge id for {worker_name}: {holiday_charge.id}")
+                    total_charge += int(holiday)
+                    charges.update({f"{worker_name} holiday": f"{pdf.monetary(holiday)}"})
+                    # holiday_charge = payment.create_charge(self.customer_stripe_id, holiday, self.customer_currency, f"{worker_name}'s holiday compensation")
+                    # print(f"holiday charge id for {worker_name}: {holiday_charge.id}")
 
 
                 # create security charge
@@ -249,13 +256,16 @@ class App(MDApp):
                     if self.customer_source_type == "card":
                         security = float(pdf.monetary(security)) * 1.04
                         security = int(pdf.monetary(security, dot=False))
-                    security_charge = payment.create_charge(self.customer_stripe_id, security, self.customer_currency, f"{worker_name}'s security deposit")
-                    print(f"security charge id for {worker_name}: {security_charge.id}")
+                    total_charge += int(security)
+                    charges.update({f"{worker_name} security": f"{pdf.monetary(security)}"})
+                    # security_charge = payment.create_charge(self.customer_stripe_id, security, self.customer_currency, f"{worker_name}'s security deposit")
+                    # print(f"security charge id for {worker_name}: {security_charge.id}")
 
                 
                 ## conferir o currency
+                ## conferir se ele ja nao trabalhava ano passado
                 # christmas bonus
-                if self.customer_christmas == "1":
+                if self.customer_christmas == "1" and worker_christmas_id is None:
                 # confere se o worker trabalha ate 4 meses antes do natal
                     today = datetime.now()
                     december = datetime(today.year, 12, 3, 0, 0)
@@ -317,7 +327,10 @@ class App(MDApp):
                     dbutil.update_item("wage_id", wage_sub.id, worker[0], table="workers")
                     print(f"wage subscription id: {wage_sub.id}")
 
-
+        charge = payment.create_charge(self.customer_stripe_id, total_charge, self.customer_currency, charges)
+        print(charge.id)
+        total_charge = 0
+        charges = []
         print("payments submitted! \n")
         # if success:
         #     print("success!")

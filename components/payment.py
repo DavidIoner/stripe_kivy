@@ -1,3 +1,5 @@
+from importlib.metadata import metadata
+from re import I
 import stripe
 import datetime
 from datetime import timedelta
@@ -6,13 +8,12 @@ import json
 
 # get api key from keys.json
 def get_api_key(currency="usd"):
-    with open("components/keys.json") as f:
+    with open("components/settings.json") as f:
         keys = json.load(f)
     if currency == "usd":
         return keys["usd"]
     elif currency == "mxn":
         return keys["mxn"]
-
 
 
 # create a customer
@@ -157,14 +158,14 @@ def create_subscription(customer_id, price, cancel=48, currency="usd", descripti
 
 
 # create a charge for a customer
-def create_charge(customer_id, amount, currency="usd", description="charge"):
+def create_charge(customer_id, amount, currency="usd", description={"charge": 0}):
     stripe.api_key = get_api_key(currency)
 
     return stripe.Charge.create(
         customer=customer_id,
         amount=amount,
         currency=currency,
-        description=description,
+        metadata=description,
     )
 
 

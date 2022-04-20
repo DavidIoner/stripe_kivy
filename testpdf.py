@@ -1,13 +1,9 @@
 
 
 # ask directory openfiledialog with tkinter
-def askdirectory():
-    import tkinter as tk
-    from tkinter import filedialog
+c = []
 
-    root = tk.Tk()
-    root.withdraw()
-    return filedialog.askdirectory()
+c.append("rolinhaazul")
 
-
+print(c)
 

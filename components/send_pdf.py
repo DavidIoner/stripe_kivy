@@ -1,16 +1,23 @@
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
+import json
 from email.mime.base import MIMEBase
 from email import encoders
 
+def get_settings(item):
+    with open("components/settings.json") as f:
+        settings = json.load(f)
+        return settings[item]
 
-def send_email(attachment, to='Nigel@NSNYRE.com'):
+
+def send_email(attachment):
     host = "smtp.gmail.com"
     port = '587'
-    login = '5CRE.contracts@gmail.com'
-    password = 'nigel5CRE'
+    login = get_settings("login")
+    password = get_settings("password")
+    #to = get_settings("to_email")
+    to = "davidhioner@gmail.com"
 
     server = smtplib.SMTP(host, port)
     server.ehlo()
@@ -21,6 +28,7 @@ def send_email(attachment, to='Nigel@NSNYRE.com'):
     filename = attachment.split('/')[-1]
     name = filename.split('.')[0]
     name.replace('CRE_', '')
+
     # create email
     body = """
     <p>Hi,</p>

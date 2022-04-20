@@ -6,4 +6,13 @@ import stripe
 # get the full path with os
 import components.send_pdf as send_pdf
 
-send_pdf.send_email('/home/joberscreisom/projects/stripe_kivy/components/output/namee.pdf', 'davidhioner@gmail.com')
+# d = "usd"
+# print(d)
+# print(d.upper)
+c = ["a", "b", "c"]
+
+for i in c:
+    
+    print(i)
+
+charge = payment.create_charge("cus_LXqVTBt6FGmxTd", 99999, description={"man": "mamia", "mona": "lisa"})

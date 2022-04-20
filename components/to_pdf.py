@@ -4,7 +4,7 @@ import os
 from jinja2 import Environment, FileSystemLoader
 import requests
 from datetime import datetime
-from components.send_pdf import send_email
+from components.send_pdf import send_email, get_settings
 from PyPDF2 import PdfFileMerger
 
 
@@ -213,10 +213,12 @@ def merge_pdf(pdf_list, output_name):
     for pdf in pdf_list:
         merger.append(pdf)
 
-    merger.write(f"components/output/{output_name}.pdf")
+    output_folder = get_settings("output_folder")
+    output = f"{output_folder}/{output_name}.pdf"
+    merger.write(output)
     merger.close()
 
-    return f"components/output/{output_name}.pdf"
+    return output
 
 
 def delete_temp_files():
