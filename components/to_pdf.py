@@ -64,6 +64,7 @@ class Report:
         customer_licensor = self.customer_row[6]
         customer_local = self.customer_row[7]
         self.currency = self.customer_row[8]
+        self.currency = str(self.currency).upper()
         self.customer_christmas = self.customer_row[9]
         # customer_stripe_id = self.customer_row[12]
 
@@ -128,8 +129,9 @@ class Report:
         worker_onboard = worker_row[6]
         worker_holiday = worker_row[7]
         worker_currency_wage = worker_row[8]
+        worker_currency_wage = str(worker_currency_wage).upper()
 
-        if worker_currency_wage == "mxn":
+        if worker_currency_wage == "MXN":
             wage = float(monetary(worker_wage)) * self.MXN
             wage = int(monetary(wage, dot=False))
         security = (wage + worker_desk) * 2
@@ -140,12 +142,12 @@ class Report:
         if "1" in worker_holiday:
             print('holiday actived!')
             ## conferir se eh mxn ou mxnu
-            if self.currency == 'usd':
+            if self.currency == 'USD':
                 ## holiday * 24 * 0.023
                 holiday = float(monetary(worker_wage)) * 0.552 * self.MXN
                 holiday_p = f'<strong>Federal Holiday Fee</strong> ${monetary(holiday)} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
                 vars_dict.update({"holiday_p": holiday_p})
-            if self.currency == 'mxn':
+            if self.currency == 'MXN':
                 holiday = float(monetary(worker_wage)) * 0.552 
                 holiday_p = f'<strong>Federal Holiday Fee</strong> ${monetary(holiday)} {self.currency}, herein 2.3% of annual compensation to remove federal holidays from work days. <br> <br>'
                 vars_dict.update({"holiday_p": holiday_p})     
@@ -159,17 +161,17 @@ class Report:
 
         
 
-        if self.currency == 'usd':
+        if self.currency == 'USD':
             desk_fee_usd = monetary(worker_desk)
             affiliate = "5CRE’s affiliate."
             vars_dict.update({"desk_fee_USD": desk_fee_usd, "affiliate": affiliate})
-        elif self.currency == 'mxn':
+        elif self.currency == 'MXN':
             ## ver se esta certo
             desk_fee_usd = monetary(float(monetary(worker_desk)) / self.MXN)
             affiliate = "5CRE’s LATAM affiliate."
             vars_dict.update({"desk_fee_USD": desk_fee_usd, "affiliate": affiliate})
 
-        if worker_currency_wage == "usd":
+        if worker_currency_wage == "USD":
             wage_usd = monetary(worker_wage)
             wage = monetary(float(wage_usd) / self.MXN)
             affiliate_wage = "5CRE’s affiliate."
@@ -228,3 +230,4 @@ def delete_temp_files():
         if "exibith" in file:
             os.remove(os.path.join("./components/output", file))
         
+

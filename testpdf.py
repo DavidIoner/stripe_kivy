@@ -1,9 +1,10 @@
 
 
 # ask directory openfiledialog with tkinter
-c = []
+c = ["bananal", "macacal"]
 
 c.append("rolinhaazul")
 
-print(c)
+d = c[1]
+print(d.upper())
 

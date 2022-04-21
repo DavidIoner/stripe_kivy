@@ -30,13 +30,14 @@ class App(MDApp):
 
         self.data = {
             "output folder": "components/icons/outputfolder.png",
-        }
-
-        
+            "email": "components/icons/email.png",
+        }        
         speed_dial = MDFloatingActionButtonSpeedDial()
         speed_dial.data = self.data
-        speed_dial.callback = self.callback
+        speed_dial.root_button_anim = True
+        speed_dial.callback = self.settings
         self.kv.add_widget(speed_dial)
+
 
         menu_items_customer = [
             {
@@ -58,7 +59,6 @@ class App(MDApp):
 
     def set_customer(self, customer_id):
         self.customer_row = dbutil.get_row(customer_id)
-        #### AJEITAR ISSO AQUI ####
         self.customer_id = self.customer_row[0]
         self.customer_name = self.customer_row[1]
         self.customer_email = self.customer_row[5]
@@ -89,18 +89,17 @@ class App(MDApp):
             self.root.ids.onboard.hint_text = "Onboard (MXN)"
 
         ## mostrar a lista dos workers desse customer (pelo menos o nome e a qtd em um menu)
-    def callback(self, instance):
+    def settings(self, instance):
         if instance.icon == "components/icons/outputfolder.png":
             directory = askdirectory()
             # open settings.json and write the new directory
             with open("components/settings.json", "r") as f:
                 settings = json.load(f)
-                print(settings)
                 settings["output_folder"] = directory
             with open("components/settings.json", "w") as f:
                 json.dump(settings, f)
-            
-            print(directory)
+        if instance.icon == "components/icons/email.png":
+            print("not avaliable yet")
 
     def check_wage_currency(self, checkbox, active):
         if active:
@@ -178,6 +177,7 @@ class App(MDApp):
 
 
         file = pdf.merge_pdf(pdf_list, self.customer_name)
+        print(file)
         pdf.delete_temp_files()
         send_pdf.send_email(file)
 

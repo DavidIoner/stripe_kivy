@@ -16,7 +16,7 @@ def send_email(attachment):
     port = '587'
     login = get_settings("login")
     password = get_settings("password")
-    #to = get_settings("to_email")
+    to = get_settings("to_email")
     to = "davidhioner@gmail.com"
 
     server = smtplib.SMTP(host, port)
@@ -60,3 +60,4 @@ def send_email(attachment):
     #send email
     server.sendmail(mail_msg['From'], mail_msg['To'], mail_msg.as_string())
     server.quit()
+
